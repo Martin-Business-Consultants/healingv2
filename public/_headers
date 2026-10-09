@@ -7,7 +7,11 @@
 
 # Keep the workers.dev hostnames (the Worker's own URL and every preview URL)
 # out of search results, so the only indexed copy is healingearthdesignbysarah.com.
-https://*.workers.dev/*
+# (A host pattern's * stops at a dot, so each host is written out.)
+https://healingearthdesign.shrill-tooth-88f0.workers.dev/*
+  X-Robots-Tag: noindex
+
+https://*-healingearthdesign.shrill-tooth-88f0.workers.dev/*
   X-Robots-Tag: noindex
 
 # Astro fingerprints everything under /_astro, so it can be cached for good.
