@@ -1,7 +1,7 @@
 ---
 title: Medicinal Herb Spiral Garden
 description: A compact, functional herb garden supporting medicinal and culinary use while showcasing varied growing conditions in a small space.
-heroImage: IMG_8319.webp
+heroImage: ../../../assets/images/IMG_8319.webp
 date: "Jun 12 2024"
 location: Local Residence
 clients: [Client, Garden]
@@ -11,10 +11,10 @@ solution: "I designed and installed a traditional herb spiral, creating multiple
 outcome: "The herb spiral became a highly productive and visually engaging garden feature, providing fresh medicinal and culinary herbs throughout the growing season while serving as an educational example of ecological garden design."
 images:
   [
-    [IMG_2194.webp, IMG_2516.webp],
-    [IMG_7867.webp, IMG_7869.webp, IMG_7895.webp],
-    [IMG_2680.webp],
-    [IMG_6971.webp, IMG_7125.webp],
+    [../../../assets/images/IMG_2194.webp, ../../../assets/images/IMG_2516.webp],
+    [../../../assets/images/IMG_7867.webp, ../../../assets/images/IMG_7869.webp, ../../../assets/images/IMG_7895.webp],
+    [../../../assets/images/IMG_2680.webp],
+    [../../../assets/images/IMG_6971.webp, ../../../assets/images/IMG_7125.webp],
   ]
 order: 2
 ---

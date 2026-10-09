@@ -27,7 +27,7 @@ const navConfig: navItem[] = [
 	},
 	{
 		text: "Services",
-		link: "/#pricing",
+		link: "/services/",
 	},
 	{
 		text: "Contact",

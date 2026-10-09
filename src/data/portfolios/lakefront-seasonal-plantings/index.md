@@ -1,7 +1,7 @@
 ---
 title: Seasonal Annual Plantings for Lakefront Pots & Window Boxes
 description: Enhancing a lakefront home with seasonal color through annual plantings that complement the surrounding landscape.
-heroImage: IMG_7973.webp
+heroImage: ../../../assets/images/IMG_7973.webp
 date: "Apr 15 2024"
 location: Lakefront Residence
 clients: [Client, Garden]
@@ -11,10 +11,10 @@ solution: "I designed coordinated annual plantings using resilient, sun-tolerant
 outcome: "The finished pots and window boxes provided vibrant color and movement throughout the season, enhancing the home's connection to the lake while remaining manageable for the homeowner."
 images:
   [
-    [IMG_0052.webp, IMG_0035.webp],
-    [IMG_0103.webp, IMG_0024.webp, IMG_0236.webp],
-    [IMG_8938.webp],
-    [IMG_9084.webp, IMG_0237.webp],
+    [../../../assets/images/IMG_0052.webp, ../../../assets/images/IMG_0035.webp],
+    [../../../assets/images/IMG_0103.webp, ../../../assets/images/IMG_0024.webp, ../../../assets/images/IMG_0236.webp],
+    [../../../assets/images/IMG_8938.webp],
+    [../../../assets/images/IMG_9084.webp, ../../../assets/images/IMG_0237.webp],
   ]
 order: 3
 ---

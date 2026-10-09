@@ -1,29 +1,38 @@
 /* buttons, 4 types "primary", "secondary", "outline", "ghost" */
 .button {
-	@apply font-heading-1 flex items-center justify-center rounded-none px-4 py-2 text-lg tracking-wide uppercase transition duration-200;
-	@apply active:opacity-80;
+	@apply font-heading-2 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-semibold tracking-wide transition duration-200;
 	@apply disabled:pointer-events-none;
 }
 
+.button svg {
+	@apply transition-transform duration-200;
+}
+
+.button:hover svg {
+	@apply translate-x-1;
+}
+
+/* the one action we want people to take: solid moss */
 .button--primary {
-	@apply bg-primary-200 text-base-900;
-	@apply hover:bg-primary-200/80;
+	@apply bg-primary-700 text-base-50 shadow-[0_1px_0_0_rgb(255_255_255/0.15)_inset,0_6px_18px_-8px_var(--color-primary-900)];
+	@apply hover:bg-primary-800;
+	@apply focus-visible:ring-primary-400 focus-visible:ring-offset-2;
+}
+
+/* light pill for use over photography */
+.button--secondary {
+	@apply bg-base-50 text-primary-900;
+	@apply hover:bg-primary-100;
 	@apply focus-visible:ring-primary-300;
 }
 
-.button--secondary {
-	@apply border-2;
-	/* @apply hover:border-opacity-80; */
-	@apply focus-visible:ring-primary-200;
-}
-
 .button--outline {
-	@apply border-primary-200 text-base-900 border-2;
-	@apply hover:border-primary-200/80;
-	@apply focus-visible:ring-primary-200;
+	@apply border-primary-700 text-primary-800 border-[1.5px];
+	@apply hover:bg-primary-700 hover:text-base-50;
+	@apply focus-visible:ring-primary-300;
 }
 
 .button--ghost {
-	@apply text-base-800;
-	@apply hover:opacity-80;
+	@apply text-primary-800 rounded-none px-0 underline decoration-1 underline-offset-[6px];
+	@apply hover:decoration-2;
 }

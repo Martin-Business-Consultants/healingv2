@@ -1,7 +1,7 @@
 ---
 title: Pollinator-Friendly Front Yard Transformation
 description: Replacing a traditional, lawn-heavy front yard with a pollinator-friendly garden that feels welcoming, intentional, and manageable.
-heroImage: IMG_6689.webp
+heroImage: ../../../assets/images/IMG_6689.webp
 date: "Aug 5 2024"
 location: Local Residence
 clients: [Client, Garden]
@@ -11,10 +11,10 @@ solution: "I designed a layered planting plan using native perennials, ornamenta
 outcome: "The garden now supports bees, butterflies, and birds throughout the growing season while remaining visually cohesive and approachable. The client gained confidence maintaining the space and plans to expand the garden over time."
 images:
   [
-    [IMG_6674.webp, IMG_6671.webp],
-    [IMG_0226.webp, IMG_5033.jpeg, IMG_0230.webp],
-    [IMG_0021.webp],
-    [IMG_6873.webp, IMG_7280.webp],
+    [../../../assets/images/IMG_6674.webp, ../../../assets/images/IMG_6671.webp],
+    [../../../assets/images/IMG_0226.webp, ../../../assets/images/IMG_5033.jpeg, ../../../assets/images/IMG_0230.webp],
+    [../../../assets/images/IMG_0021.webp],
+    [../../../assets/images/IMG_6873.webp, ../../../assets/images/IMG_7280.webp],
   ]
 order: 1
 ---

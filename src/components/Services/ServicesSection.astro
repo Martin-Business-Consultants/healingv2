@@ -1,0 +1,35 @@
+---
+/**
+ * * Home page services overview
+ */
+
+import Button from "@components/Button/Button.astro";
+import ServiceCards from "@components/Services/ServiceCards.astro";
+
+interface Props {
+	heading?: string;
+	ctaText?: string;
+}
+
+const { heading = "Plant-forward help, from first visit to planting day", ctaText = "See all services" } =
+	Astro.props;
+---
+
+<section id="services" class="section bg-base-100">
+	<div class="site-container">
+		<div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+			<div class="max-w-[40rem]">
+				<p class="eyebrow">Services</p>
+				<h2 class="h2 mt-3">{heading}</h2>
+				<p class="description mt-5 text-lg">
+					Every service is tailored to your space, lifestyle, and experience level, and focused on
+					plants, with no hardscape installation.
+				</p>
+			</div>
+			<Button href="/services/" variant="outline" arrow="right">{ctaText}</Button>
+		</div>
+		<div class="mt-12 md:mt-16">
+			<ServiceCards />
+		</div>
+	</div>
+</section>

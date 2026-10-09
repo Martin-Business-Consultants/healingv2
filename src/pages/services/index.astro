@@ -1,0 +1,51 @@
+---
+import Button from "@components/Button/Button.astro";
+import Contact from "@components/Contact/Contact.astro";
+import PageHeader from "@components/PageHeader/PageHeader.astro";
+import ServiceCards from "@components/Services/ServiceCards.astro";
+import TestimonialQuote from "@components/Testimonials/TestimonialQuote.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import headerImage from "@assets/images/IMG_0021.webp";
+import homeData from "@/data/pages/home.json";
+---
+
+<BaseLayout
+	title="Services | Healing Earth Design"
+	description="Garden consultations, planting plans, landscape design, plant shopping, and installation help from Healing Earth Design."
+	navStartStyle="white"
+>
+	<PageHeader
+		eyebrow="Services"
+		title="Plant-forward help, from first visit to planting day"
+		intro="Every service is tailored to your space, lifestyle, and experience level. All of it is focused on plants, with no hardscape installation."
+		image={headerImage}
+		imagePosition="50% 60%"
+	>
+		<Button href="#contact" variant="secondary" arrow="right">Book a garden consultation</Button>
+	</PageHeader>
+
+	<section class="section">
+		<div class="site-container">
+			<ServiceCards />
+
+			<div
+				class="bg-primary-100 mt-16 flex flex-col items-start justify-between gap-6 rounded-2xl p-8 md:flex-row md:items-center md:p-10"
+				data-reveal
+			>
+				<div>
+					<p class="font-heading-1 text-primary-950 text-2xl md:text-3xl">Not sure where to start?</p>
+					<p class="description mt-2 max-w-[36rem]">
+						Most projects begin with a garden consultation. We'll look at your site together and decide
+						what comes next.
+					</p>
+				</div>
+				<Button href="/services/garden-consultation/" variant="primary" arrow="right" class="shrink-0">
+					About consultations
+				</Button>
+			</div>
+		</div>
+	</section>
+
+	<TestimonialQuote quoteText={homeData.testimonialQuote.quoteText} attribution={homeData.testimonialQuote.attribution} />
+	<Contact source="services" />
+</BaseLayout>

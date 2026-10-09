@@ -1,41 +1,23 @@
 ---
-import { Icon } from "astro-icon/components";
-
 interface Props {
 	quoteText?: string;
 	attribution?: string;
 }
 
 const {
-	quoteText = "Sarah's garden designs transformed our yard into something truly special",
-	attribution = "- Maria, Homeowner",
+	quoteText = "Sarah created a stunning design for my rain garden. It really brought the project to life and helped me imagine what the space would look like when finished.",
+	attribution = "- Emily D.",
 } = Astro.props;
+
+const name = attribution.replace(/^[-–—\s]+/, "");
 ---
 
-<div class="bg-base-100 mt-12 py-10 md:mt-16 md:py-16">
-	<div class="mx-auto flex max-w-6xl items-start gap-2 px-4">
-		<div>
-			<Icon
-				name="gridicons/quote"
-				class="text-primary-200 size-8 -translate-y-4 md:size-20"
-				aria-hidden="true"
-			/>
-		</div>
-		<p class="h2 text-primary-600 text-center uppercase">
-			{quoteText}
-		</p>
-		<div>
-			<Icon
-				name="gridicons/quote"
-				class="text-primary-200 size-8 -translate-y-4 -scale-x-100 md:size-20"
-				aria-hidden="true"
-			/>
-		</div>
+<figure class="bg-primary-900 text-primary-50 py-16 md:py-24">
+	<div class="site-container max-w-[60rem]" data-reveal>
+		<span class="font-heading-1 text-bloom block text-7xl leading-[0.5]" aria-hidden="true">“</span>
+		<blockquote class="font-heading-1 mt-4 text-2xl leading-snug md:text-4xl md:leading-snug">
+			{quoteText.trim()}
+		</blockquote>
+		<figcaption class="font-heading-2 text-primary-200 mt-8 font-semibold">{name}</figcaption>
 	</div>
-
-	<div class="xs:grid-cols-2 mt-6 grid">
-		<div class="col-start-2">
-			<p class="h3 text-primary-600">{attribution}</p>
-		</div>
-	</div>
-</div>
+</figure>

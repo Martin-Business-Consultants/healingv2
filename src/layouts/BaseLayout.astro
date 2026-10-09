@@ -45,5 +45,19 @@ const {
 			</main>
 		</div>
 		<Footer />
+
+		<!-- sticky booking bar for small screens; motion.ts shows it between the hero and the contact form -->
+		<div
+			id="mobile-cta"
+			inert
+			class="border-base-200 bg-base-50/95 fixed inset-x-0 bottom-0 z-20 border-t px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] opacity-0 backdrop-blur md:hidden"
+			style="transform: translateY(120%)"
+		>
+			<a href="/#contact" class="button button--primary w-full">Book a garden consultation</a>
+		</div>
+
+		<script>
+			import "@js/motion";
+		</script>
 	</body>
 </html>

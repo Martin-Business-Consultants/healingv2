@@ -1,0 +1,37 @@
+---
+/**
+ * * Credentials strip shown directly under the hero
+ */
+
+interface Props {
+	items: string[];
+}
+
+const { items } = Astro.props as Props;
+---
+
+<section aria-label="Why work with Sarah" class="bg-primary-900 text-primary-50">
+	<ul
+		data-reveal-group
+		class="site-container grid gap-x-8 gap-y-4 py-7 sm:grid-cols-2 lg:grid-cols-4 lg:py-8"
+	>
+		{
+			items.map((item) => (
+				<li class="flex items-start gap-3 text-[0.95rem] leading-snug">
+					<svg
+						viewBox="0 0 24 24"
+						class="text-primary-300 mt-0.5 size-5 shrink-0"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.6"
+						aria-hidden="true"
+					>
+						<path d="M5 19c0-8 5-14 14-14 0 9-6 14-14 14Z" />
+						<path d="M5 19 13 11" />
+					</svg>
+					<span>{item}</span>
+				</li>
+			))
+		}
+	</ul>
+</section>

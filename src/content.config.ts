@@ -57,11 +57,14 @@ const services = defineCollection({
 		pattern: "**/[^_]*.{md,mdx}",
 		base: "./src/data/services",
 	}),
-	schema: () =>
+	schema: ({ image }) =>
 		z.object({
 			name: z.string(),
 			icon: z.string(),
-			price: z.string(),
+			summary: z.string().optional(),
+			image: image().optional(),
+			// kept for reference in the CMS; not shown on the site
+			price: z.string().optional(),
 			features: z.array(z.string()),
 			order: z.number(),
 			draft: z.boolean().optional(),

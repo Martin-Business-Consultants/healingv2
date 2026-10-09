@@ -1,0 +1,89 @@
+---
+import Button from "@components/Button/Button.astro";
+import Contact from "@components/Contact/Contact.astro";
+import PageHeader from "@components/PageHeader/PageHeader.astro";
+import ServiceCards from "@components/Services/ServiceCards.astro";
+import TestimonialQuote from "@components/Testimonials/TestimonialQuote.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import fallbackImage from "@assets/images/IMG_0021.webp";
+import { Icon } from "astro-icon/components";
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import homeData from "@/data/pages/home.json";
+
+export async function getStaticPaths() {
+	const services = await getCollection("services", ({ data }) => data.draft !== true);
+	return services.map((service) => ({ params: { slug: service.id }, props: { service } }));
+}
+
+interface Props {
+	service: CollectionEntry<"services">;
+}
+
+const { service } = Astro.props;
+const { name, summary, features, image } = service.data;
+const { Content } = await render(service);
+const hasBody = Boolean(service.body?.trim());
+---
+
+<BaseLayout
+	title={`${name} | Healing Earth Design`}
+	description={summary ?? `${name} from Healing Earth Design.`}
+	heroImage={image}
+	navStartStyle="white"
+>
+	<PageHeader eyebrow="Services" title={name} intro={summary} image={image ?? fallbackImage}>
+		<Button href="#contact" variant="secondary" arrow="right">Ask about this service</Button>
+		<a
+			href="/services/"
+			class="font-heading-2 text-base-50 decoration-base-50/50 hover:decoration-base-50 font-medium underline decoration-1 underline-offset-[6px] transition"
+		>
+			All services
+		</a>
+	</PageHeader>
+
+	<section class="section">
+		<div
+			class:list={[
+				"site-container grid gap-12",
+				{ "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-20": hasBody },
+			]}
+		>
+			<div data-reveal>
+				<p class="eyebrow">What's included</p>
+				<ul class:list={["mt-6 grid gap-x-10 gap-y-5", { "md:grid-cols-2": !hasBody }]}>
+					{
+						features.map((feature) => (
+							<li class="border-base-200 flex gap-3 border-t pt-5 text-lg leading-snug">
+								<Icon name="tabler:check" class="text-primary-600 mt-0.5 size-5 shrink-0" aria-hidden="true" />
+								<span>{feature}</span>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+			{
+				hasBody && (
+					<div class="markdown-content min-w-0" data-reveal>
+						<Content />
+					</div>
+				)
+			}
+		</div>
+	</section>
+
+	<TestimonialQuote quoteText={homeData.testimonialQuote.quoteText} attribution={homeData.testimonialQuote.attribution} />
+
+	<section class="section">
+		<div class="site-container">
+			<div data-reveal>
+				<p class="eyebrow">More ways I can help</p>
+				<h2 class="h2 mt-3">Other services</h2>
+			</div>
+			<div class="mt-10">
+				<ServiceCards exclude={service.id} />
+			</div>
+		</div>
+	</section>
+
+	<Contact selected={service.id} source={`service: ${service.id}`} />
+</BaseLayout>

@@ -1,6 +1,8 @@
 ---
 name: Detailed Landscape Design
 icon: "tabler:notebook"
+summary: "Custom, to-scale drawings and a complete plant list for a garden designed around pollinators, wildlife, and long-term success."
+image: ../../../assets/images/IMG_7867.webp
 price: "$400–$1,000"
 features:
   - "Custom, to-scale landscape drawings"

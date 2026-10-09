@@ -1,77 +1,119 @@
 ---
 /**
- * * Hero with background image
- * You'll want a mobile image, and a desktop image for this.
+ * * Hero: background photo, headline, client quote, and the booking form.
+ * The form card carries id="contact", so every "Book" link and pricing-card preselect lands here.
  */
 
-import Button from "@components/Button/Button.astro";
+import ContactForm from "@components/Forms/ContactForm.astro";
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
 interface Props {
+	eyebrow?: string;
 	heading?: string;
 	subtitle?: string;
 	ctaText?: string;
+	secondaryCtaText?: string;
 	image?: ImageMetadata;
+	quote?: { text: string; attribution: string };
 }
 
 const {
+	eyebrow,
 	heading = "Healing Earth Design",
 	subtitle = "Beautiful, functional gardens rooted in ecology, sustainability, and care for the land.",
-	ctaText = "Get in Touch",
+	ctaText = "Book a garden consultation",
+	secondaryCtaText = "See the gardens",
 	image,
+	quote,
 } = Astro.props;
 
 // fallback if no image prop provided
 const heroImage = image ?? (await import("@assets/images/IMG_7280.webp")).default;
+const attribution = quote?.attribution.replace(/^[-–—\s]+/, "");
 ---
 
-<section id="hero" class="relative z-10 flex min-h-[100lvh] w-full">
-	<!-- background image -->
-	<div class="absolute -z-10 h-full min-h-full w-full overflow-hidden">
-		<div class="absolute inset-0 bg-black/30"></div>
-
+<section id="hero" data-cta-hide class="relative isolate w-full overflow-hidden">
+	<!-- background photo, flush to the top so it shows through the transparent nav -->
+	<div class="absolute inset-0 -z-10" data-hero-media>
 		<Image
 			src={heroImage}
-			class="hidden h-auto min-h-full w-full object-cover object-bottom sm:block"
-			alt="garden landscape"
-			aria-hidden="true"
+			class="h-full w-full object-cover object-[50%_70%]"
+			alt=""
 			loading="eager"
-			height={1400}
-		/>
-		<Image
-			src={heroImage}
-			class="h-auto min-h-full w-full object-cover sm:hidden"
-			alt="garden landscape"
-			aria-hidden="true"
-			loading="eager"
-			width={1200}
+			fetchpriority="high"
+			widths={[800, 1400, 2000]}
+			sizes="100vw"
 		/>
 	</div>
+	<!-- light top scrim keeps the white nav legible against bright sky -->
+	<div class="from-primary-950/45 absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b to-transparent"></div>
+	<!-- main scrim: darkest bottom-left where the copy sits -->
+	<div
+		class="from-primary-950/85 via-primary-950/50 to-primary-950/10 absolute inset-0 -z-10 bg-gradient-to-tr"
+	>
+	</div>
 
-	<!-- hero items -->
-	<div class="site-container relative w-full gap-10 py-44 text-center md:py-52 md:text-left">
-		<!-- Hero text -->
-		<div class="text-base-50 my-auto mr-auto max-w-[800px] flex-col">
+	<div
+		class="site-container grid w-full gap-12 pt-44 pb-14 md:pt-48 md:pb-20 lg:grid-cols-[minmax(0,1fr)_27rem] lg:items-center lg:gap-16"
+	>
+		<div class="text-base-50 max-w-[40rem] min-w-0">
+			{
+				eyebrow && (
+					<p
+						data-hero-item
+						class="font-heading-2 text-primary-100 text-xs font-semibold tracking-[0.18em] uppercase md:text-sm"
+					>
+						{eyebrow}
+					</p>
+				)
+			}
 			<h1
-				class="font-heading-1 text-4xl font-semibold text-pretty drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)] md:text-7xl md:leading-tight"
+				data-hero-item
+				class="font-heading-1 mt-4 text-[2.6rem] leading-[1.04] font-medium tracking-tight md:text-[4.25rem]"
 			>
 				{heading}
 			</h1>
-			<p
-				class="mt-8 text-lg tracking-widest text-pretty drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)] md:max-w-[550px] md:text-2xl"
-			>
+			<p data-hero-item class="text-base-100 mt-6 max-w-[34rem] text-lg md:text-xl">
 				{subtitle}
 			</p>
-			<div class="mt-10 flex flex-wrap justify-center gap-4 md:justify-start">
-				<Button
-					variant="ghost"
-					arrow="right"
-					href="/#contact"
-					class="pl-0 text-xl text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)] md:text-3xl"
+			<div data-hero-item class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+				<!-- on small screens the form sits below the fold, so give the main action a button that jumps to it -->
+				<a href="#contact" class="button button--secondary lg:hidden">{ctaText}</a>
+				<a
+					href="/#portfolio"
+					class="font-heading-2 text-base-50 decoration-base-50/50 hover:decoration-base-50 font-medium underline decoration-1 underline-offset-[6px] transition"
 				>
-					{ctaText}
-				</Button>
+					{secondaryCtaText}
+				</a>
+			</div>
+
+			{
+				quote && (
+					<figure data-hero-item class="border-base-50/30 mt-10 max-w-[30rem] border-l-2 pl-5">
+						<blockquote class="font-heading-1 text-base-50 text-lg leading-snug italic">
+							“{quote.text.trim()}”
+						</blockquote>
+						<figcaption class="font-heading-2 text-primary-100 mt-3 text-sm font-semibold">
+							{attribution}, rain garden client
+						</figcaption>
+					</figure>
+				)
+			}
+		</div>
+
+		<div
+			id="contact"
+			data-hero-item
+			class="bg-base-50 text-base-900 scroll-mt-24 rounded-2xl p-6 shadow-[0_30px_70px_-30px_rgb(0_0_0/0.6)] md:p-8"
+		>
+			<p class="eyebrow">Start here</p>
+			<h2 class="font-heading-1 mt-2 text-2xl leading-tight font-medium md:text-3xl">{ctaText}</h2>
+			<p class="description mt-2 text-sm">
+				Tell me about your space. I reply within 1–2 business days.
+			</p>
+			<div class="mt-6">
+				<ContactForm compact />
 			</div>
 		</div>
 	</div>

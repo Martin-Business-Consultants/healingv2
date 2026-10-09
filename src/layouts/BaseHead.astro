@@ -14,7 +14,6 @@ export interface Props {
 
 const { type = "general", title, description, image, noindex = false } = Astro.props as Props;
 
-import CinzelDecorative from "@fontsource/cinzel-decorative/files/cinzel-decorative-latin-400-normal.woff2";
 import PlayfairDisplayVariable from "@fontsource-variable/playfair-display/files/playfair-display-latin-wght-normal.woff2";
 import RalewayVariable from "@fontsource-variable/raleway/files/raleway-latin-wght-normal.woff2";
 import WorkSansVariable from "@fontsource-variable/work-sans/files/work-sans-latin-wght-normal.woff2";
@@ -33,7 +32,15 @@ import WorkSansVariable from "@fontsource-variable/work-sans/files/work-sans-lat
 	type="font/woff2"
 	crossorigin="anonymous"
 />
-<link rel="preload" href={CinzelDecorative} as="font" type="font/woff2" crossorigin="anonymous" />
+
+<!-- Hold the hero copy for the entrance animation. Skipped when the visitor prefers reduced motion,
+and released after 2.5s regardless so the page can never stay blank if the motion script fails. -->
+<script is:inline>
+	if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+		document.documentElement.classList.add("motion-pending");
+		setTimeout(() => document.documentElement.classList.remove("motion-pending"), 2500);
+	}
+</script>
 
 <!-- Favicons. Generated from https://realfavicongenerator.net/ -->
 <link rel="icon" type="image/png" href="/favicons/favicon-96x96.png" sizes="96x96" />

@@ -1,0 +1,57 @@
+---
+/**
+ * * Service cards. Each links to its own page at /services/<id>/
+ */
+
+import { Icon } from "astro-icon/components";
+import { getCollection } from "astro:content";
+
+interface Props {
+	exclude?: string; // a service id to leave out, e.g. the one whose page you're on
+}
+
+const { exclude } = Astro.props;
+
+const services = (await getCollection("services", ({ data, id }) => data.draft !== true && id !== exclude)).sort(
+	(a, b) => a.data.order - b.data.order,
+);
+const n = services.length;
+
+// fill every row: 5 cards lay out as 3 + 2 on large screens; an odd last card spans both columns on tablets
+function spanFor(i: number) {
+	const classes: string[] = [];
+	if (n === 5) classes.push(i < 3 ? "lg:col-span-2" : "lg:col-span-3");
+	if (n % 2 === 1 && i === n - 1) classes.push("sm:col-span-2", n === 5 ? "lg:col-span-3" : "lg:col-span-1");
+	return classes.join(" ");
+}
+---
+
+<ul
+	data-reveal-group
+	class:list={["grid gap-5 sm:grid-cols-2", n === 5 ? "lg:grid-cols-6" : n % 3 === 0 ? "lg:grid-cols-3" : ""]}
+>
+	{
+		services.map((service, i) => (
+			<li class:list={["min-w-0", spanFor(i)]}>
+				<a
+					href={`/services/${service.id}/`}
+					class="group bg-base-50 border-base-200 hover:border-primary-300 flex h-full flex-col rounded-2xl border p-6 transition-[border-color,box-shadow] duration-300 hover:shadow-[0_20px_40px_-28px_var(--color-primary-900)] md:p-7"
+				>
+					<span class="bg-primary-100 text-primary-700 grid size-11 place-items-center rounded-full">
+						<Icon name={service.data.icon} class="size-6" aria-hidden="true" />
+					</span>
+					<h3 class="font-heading-1 text-base-900 mt-5 text-2xl leading-tight">{service.data.name}</h3>
+					{service.data.summary && <p class="description mt-3 text-pretty">{service.data.summary}</p>}
+					<span class="font-heading-2 text-primary-800 mt-auto inline-flex items-center gap-2 pt-6 font-semibold">
+						Learn more
+						<Icon
+							name="mynaui/arrow-long-right"
+							class="size-5 transition-transform duration-200 group-hover:translate-x-1"
+							aria-hidden="true"
+						/>
+					</span>
+				</a>
+			</li>
+		))
+	}
+</ul>

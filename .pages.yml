@@ -14,13 +14,13 @@ media:
   - name: portfolio-images
     label: Portfolio Images
     input: src/assets/images
-    output: src/assets/images
+    output: ../../../assets/images
     categories: [image]
     extensions: [jpg, jpeg, png, webp, avif]
   - name: testimonial-images
     label: Testimonial Images
     input: src/assets/images
-    output: src/assets/images
+    output: ../../../assets/images
     categories: [image]
     extensions: [jpg, jpeg, png, webp, avif]
 
@@ -34,6 +34,10 @@ content:
         label: Hero
         type: object
         fields:
+          - name: eyebrow
+            label: Eyebrow (small label above the heading)
+            type: string
+            required: false
           - name: heading
             label: Heading
             type: string
@@ -43,13 +47,25 @@ content:
             type: string
             required: true
           - name: ctaText
-            label: CTA Text
+            label: Main Button Text
             type: string
             required: true
+          - name: secondaryCtaText
+            label: Secondary Link Text
+            type: string
+            required: false
           - name: image
             label: Hero Image
             type: image
             media: site-images
+      - name: proof
+        label: Credentials Strip
+        type: object
+        fields:
+          - name: items
+            label: Items
+            type: string
+            list: true
       - name: whatIDo
         label: What I Do
         type: object
@@ -130,6 +146,87 @@ content:
           - name: attribution
             label: Attribution
             type: string
+            required: true
+
+  - name: fall-planning
+    label: Fall Planning (banner & page)
+    type: file
+    path: src/data/pages/fall-planning.json
+    fields:
+      - name: banner
+        label: Top Banner
+        type: object
+        fields:
+          - name: enabled
+            label: Show the banner
+            type: boolean
+            default: true
+          - name: text
+            label: Banner Text
+            type: string
+            required: true
+          - name: linkText
+            label: Banner Link Text
+            type: string
+            required: true
+      - name: pageTitle
+        label: Page Title (browser tab)
+        type: string
+        required: true
+      - name: pageDescription
+        label: Page Description (search engines)
+        type: text
+        required: true
+      - name: eyebrow
+        label: Eyebrow
+        type: string
+      - name: heading
+        label: Heading
+        type: string
+        required: true
+      - name: intro
+        label: Intro
+        type: text
+        required: true
+      - name: offer
+        label: Special Offer
+        type: object
+        fields:
+          - name: heading
+            label: Heading
+            type: string
+          - name: text
+            label: Offer Details (leave empty to hide the offer box)
+            type: text
+      - name: reasons
+        label: Why Plan in Fall
+        type: object
+        list: true
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: text
+            label: Text
+            type: text
+            required: true
+      - name: steps
+        label: Fall to Spring Timeline
+        type: object
+        list: true
+        fields:
+          - name: season
+            label: Season
+            type: string
+            required: true
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: text
+            label: Text
+            type: text
             required: true
 
   - name: about-page
@@ -315,7 +412,7 @@ content:
     subfolders: true
     filename: index
     view:
-      fields: [name, price, order]
+      fields: [name, order]
       primary: name
       sort: [order]
     fields:
@@ -323,6 +420,15 @@ content:
         label: Name
         type: string
         required: true
+      - name: summary
+        label: Summary (shown on cards and at the top of the service page)
+        type: text
+        required: false
+      - name: image
+        label: Page Photo
+        type: image
+        media: portfolio-images
+        required: false
       - name: icon
         label: Icon
         type: select
@@ -339,13 +445,17 @@ content:
             - { value: "tabler:target", label: "Target" }
             - { value: "tabler:category", label: "Category" }
       - name: price
-        label: Price
+        label: Price (for your reference only, not shown on the site)
         type: string
-        required: true
+        required: false
       - name: features
         label: Features
         type: string
         list: true
+      - name: body
+        label: Page Content (optional, shown on the service page)
+        type: rich-text
+        required: false
       - name: order
         label: Order
         type: number
