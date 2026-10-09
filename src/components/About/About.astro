@@ -1,50 +1,39 @@
 ---
 /**
- * * About section
+ * * About intro (CMS block "about_intro"): a portrait beside a short introduction and sign-off.
  */
 
 import Button from "@components/Button/Button.astro";
-import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
+import CmsImage from "@components/CmsImage/CmsImage.astro";
+import type { AboutIntroBlock } from "librepublish:types";
 
-interface Props {
-	subheading?: string;
-	heading?: string;
-	body?: string;
-	signoff?: string;
-	image?: ImageMetadata;
-}
+import { href, richText } from "@/lib/cms";
 
-const {
-	subheading = "About",
-	heading = "Healing Earth Design",
-	body = "Healing Earth Design was founded on the belief that caring for the land can be a powerful form of healing. After experiencing personal loss, I returned to school for sustainable horticulture and landscape design, finding peace and purpose through working with plants, soil, and seasonal rhythms. What began as a way to heal grew into a calling to help others reconnect with the earth in meaningful, practical ways.",
-	signoff = "- Sarah",
-	image,
-} = Astro.props;
+type Props = AboutIntroBlock;
 
-const profileImage = image ?? (await import("@assets/images/93E74CCA-7963-44C9-9EAE-63A2A275CD89.webp")).default;
+const { eyebrow, heading, body, signoff, image, button_label, button_link } = Astro.props;
+const buttonHref = href(button_link);
 ---
 
 <section id="about" class="section">
 	<div class="site-container grid items-center gap-12 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
 		<div class="bg-base-200 aspect-[4/5] max-w-md overflow-hidden rounded-xl md:max-w-none" data-reveal>
-			<Image
-				src={profileImage}
-				alt="Sarah Martin, founder of Healing Earth Design"
-				width={560}
-				densities={[1.5, 2]}
-				class="h-full w-full object-cover"
-			/>
+			<CmsImage id={image} sizes="(min-width: 768px) 40vw, 100vw" class="h-full w-full object-cover" />
 		</div>
 		<div class="min-w-0" data-reveal>
-			<p class="eyebrow">{subheading}</p>
+			{eyebrow && <p class="eyebrow">{eyebrow}</p>}
 			<h2 class="h2 mt-3">{heading}</h2>
-			<p class="description mt-6 max-w-[36rem] text-lg">{body}</p>
-			<p class="font-heading-1 text-primary-800 mt-6 text-3xl italic">{signoff}</p>
-			<div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
-				<Button href="/about/" variant="outline" arrow="right">Read Sarah's story</Button>
-			</div>
+			<div class="description prose-cms mt-6 max-w-[36rem] text-lg" set:html={richText(body)} />
+			{signoff && <p class="font-heading-1 text-primary-800 mt-6 text-3xl italic">{signoff}</p>}
+			{
+				button_label && buttonHref && (
+					<div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+						<Button href={buttonHref} variant="outline" arrow="right">
+							{button_label}
+						</Button>
+					</div>
+				)
+			}
 		</div>
 	</div>
 </section>

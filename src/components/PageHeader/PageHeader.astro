@@ -1,33 +1,44 @@
 ---
 /**
- * * Photo header for inner pages. Sits under the transparent nav like the home hero.
+ * * Photo header for inner pages (CMS block "page_header"). Sits under the transparent nav like the
+ * home hero. Service pages use it too, passing their own links in the slot.
  */
 
-import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
+import Button from "@components/Button/Button.astro";
+import CmsImage from "@components/CmsImage/CmsImage.astro";
+import type { Link } from "librepublish:types";
+
+import { href } from "@/lib/cms";
 
 interface Props {
-	eyebrow?: string;
+	eyebrow?: string | null;
 	title: string;
-	intro?: string;
-	image: ImageMetadata;
-	imagePosition?: string; // CSS object-position
+	intro?: string | null;
+	image?: string | null; // asset id
+	image_position?: string | null; // CSS object-position; blank uses the photo's focal point
+	button_label?: string | null;
+	button_link?: Link | null;
+	secondary_label?: string | null;
+	secondary_link?: Link | null;
 }
 
-const { eyebrow, title, intro, image, imagePosition = "50% 50%" } = Astro.props;
+const { eyebrow, title, intro, image, image_position, button_label, button_link, secondary_label, secondary_link } =
+	Astro.props;
+const buttonHref = href(button_link);
+const secondaryHref = href(secondary_link);
+const hasLinks = Astro.slots.has("default") || (button_label && buttonHref) || (secondary_label && secondaryHref);
 ---
 
-<section data-cta-hide class="relative isolate overflow-hidden">
+<section data-cta-hide class="bg-primary-950 relative isolate overflow-hidden">
 	<div class="absolute inset-0 -z-10" data-hero-media>
-		<Image
-			src={image}
+		<CmsImage
+			id={image}
 			alt=""
 			loading="eager"
 			fetchpriority="high"
-			widths={[800, 1400, 2000]}
 			sizes="100vw"
 			class="h-full w-full object-cover"
-			style={`object-position: ${imagePosition}`}
+			position={image_position}
 		/>
 	</div>
 	<div class="from-primary-950/45 absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b to-transparent"></div>
@@ -47,8 +58,21 @@ const { eyebrow, title, intro, image, imagePosition = "50% 50%" } = Astro.props;
 			</h1>
 			{intro && <p data-hero-item class="text-base-100 mt-6 max-w-[36rem] text-lg md:text-xl">{intro}</p>}
 			{
-				Astro.slots.has("default") && (
+				hasLinks && (
 					<div data-hero-item class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+						{button_label && buttonHref && (
+							<Button href={buttonHref} variant="secondary" arrow="right">
+								{button_label}
+							</Button>
+						)}
+						{secondary_label && secondaryHref && (
+							<a
+								href={secondaryHref}
+								class="font-heading-2 text-base-50 decoration-base-50/50 hover:decoration-base-50 font-medium underline decoration-1 underline-offset-[6px] transition"
+							>
+								{secondary_label}
+							</a>
+						)}
 						<slot />
 					</div>
 				)

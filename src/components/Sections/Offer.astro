@@ -1,0 +1,25 @@
+---
+/**
+ * * A highlighted special offer (CMS block "offer"). Hidden while its text is blank.
+ */
+
+import type { OfferBlock } from "librepublish:types";
+
+type Props = OfferBlock;
+
+const { heading, text } = Astro.props;
+---
+
+{
+	text?.trim() && (
+		<section class="site-container -mt-8 md:-mt-10">
+			<div
+				class="bg-base-50 border-bloom relative rounded-2xl border-l-4 p-7 shadow-[0_24px_60px_-36px_var(--color-primary-900)] md:p-9"
+				data-reveal
+			>
+				{heading && <p class="eyebrow text-bloom">{heading}</p>}
+				<p class="font-heading-1 text-base-900 mt-3 max-w-[48rem] text-2xl leading-snug md:text-3xl">{text}</p>
+			</div>
+		</section>
+	)
+}

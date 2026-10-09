@@ -1,0 +1,33 @@
+---
+/**
+ * Every page in the CMS (home, about, services, case studies, fall planning, contact, privacy…),
+ * served where the CMS says it lives, built from its blocks. Add a page in the CMS and publish it,
+ * and it's here after the rebuild.
+ */
+import BlockRenderer from "@components/blocks/BlockRenderer.astro";
+import PageTitle from "@components/PageHeader/PageTitle.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { type CmsPage, routeParam } from "@librepublish/astro/client";
+
+import { listPages } from "@/lib/cms";
+
+export async function getStaticPaths() {
+	return (await listPages()).map((page) => ({
+		params: { path: routeParam(page, { site: import.meta.env.SITE }) },
+		props: { page },
+	}));
+}
+
+const { page } = Astro.props as { page: CmsPage };
+const blocks = page.blocks ?? [];
+// A page that opens with a photo keeps the nav white over it; one that opens with neither a photo
+// nor a title block gets its title as a plain heading.
+const opener = blocks[0]?.type;
+const photoHeader = opener === "home_hero" || opener === "page_header";
+const titled = photoHeader || opener === "page_title";
+---
+
+<BaseLayout record={page} navStartStyle={photoHeader ? "white" : "default"}>
+	{!titled && <PageTitle heading={page.title} />}
+	<BlockRenderer blocks={blocks} />
+</BaseLayout>

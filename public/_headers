@@ -1,0 +1,20 @@
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Keep the workers.dev hostnames (the Worker's own URL and every preview URL)
+# out of search results, so the only indexed copy is healingearthdesignbysarah.com.
+https://*.workers.dev/*
+  X-Robots-Tag: noindex
+
+# Astro fingerprints everything under /_astro, so it can be cached for good.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# CMS images, downloaded into the build. Their paths are signed ids that
+# change whenever the image does, so they can be cached for good too.
+/media/*
+  Cache-Control: public, max-age=31536000, immutable

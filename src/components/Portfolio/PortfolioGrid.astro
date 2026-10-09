@@ -1,9 +1,10 @@
 ---
 import PortfolioCard from "@components/PortfolioCard/PortfolioCard.astro";
-import { type CollectionEntry } from "astro:content";
+
+import type { CaseStudy } from "@/lib/cms";
 
 interface Props {
-	portfolios: CollectionEntry<"portfolios">[];
+	portfolios: CaseStudy[];
 	noTransitions?: boolean;
 }
 

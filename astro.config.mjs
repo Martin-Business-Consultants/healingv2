@@ -1,66 +1,68 @@
-import mdx from "@astrojs/mdx";
-import sitemap from "@astrojs/sitemap";
-import compress from "@playform/compress";
+// @ts-check
 import tailwindcss from "@tailwindcss/vite";
+import cms from "@librepublish/astro";
 import { defineConfig } from "astro/config";
-import AutoImport from "astro-auto-import";
-import icon from "astro-icon"; // https://www.astroicon.dev/guides/upgrade/v1/
+import icon from "astro-icon";
 
-// https://astro.build/config
+import cmsMedia from "./integrations/cms-media.mjs";
+
 export default defineConfig({
-	site: "https://horizon.cosmicthemes.com",
+	site: "https://healingearthdesignbysarah.com",
+	// The CMS addresses records without a trailing slash ("/services/x"), and so
+	// does every link on the site. Each page is written as a file (about.html),
+	// which Cloudflare serves at /about and redirects /about/ to.
+	trailingSlash: "never",
+	build: { format: "file" },
 	integrations: [
-		// example auto import component into blog post mdx files
-		AutoImport({
-			imports: [
-				// https://github.com/delucis/astro-auto-import
-				"@components/Admonition/Admonition.astro",
-			],
-		}),
-		mdx(),
+		// LibrePublish: content loaders, generated types, /sitemap.xml, /robots.txt
+		// and _redirects from the CMS, form email templates, Site health checks
+		// and the build report. Reads CMS_BASE_URL and CMS_API_TOKEN (environment or .env).
+		cms(),
+		// The CMS images the pages link, downloaded into dist/media/.
+		cmsMedia(),
 		icon({
-			// I include only the icons I use. This is because if you use SSR, ALL icons will be included (no bueno)
-			// https://www.astroicon.dev/reference/configuration#include
+			// Only the icons the site uses. A service's icon is picked in the CMS
+			// from the same list (the Services collection's "icon" field).
 			include: {
 				tabler: [
 					"bulb",
 					"alert-triangle",
-					"flame",
-					"info-circle",
-					"arrow-narrow-left",
-					"arrow-narrow-right",
 					"menu-2",
 					"x",
 					"chevron-down",
-					"category",
-					"calendar-event",
 					"target",
-					"plant-2",
+					"check",
+					"clock",
+					"map-pin",
+					// service icons
 					"message",
 					"pencil",
 					"notebook",
 					"shovel",
 					"shopping-cart",
-					"check",
-					"clock",
-					"map-pin",
+					"plant-2",
+					"plant",
+					"leaf",
+					"seedling",
+					"flower",
+					"trees",
+					"sun",
+					"droplet",
+					"calendar-event",
+					"home",
+					// social profiles
+					"brand-facebook",
+					"brand-instagram",
+					"brand-youtube",
+					"brand-pinterest",
+					"brand-tiktok",
+					"brand-x",
+					"brand-linkedin",
 				],
 			},
-		}),
-		sitemap(),
-		compress({
-			HTML: true,
-			JavaScript: true,
-			CSS: false,
-			Image: false, // astro:assets handles this. Enabling this can dramatically increase build times
-			SVG: false, // astro-icon handles this
 		}),
 	],
 	vite: {
 		plugins: [tailwindcss()],
-		// stop inlining short scripts to fix issues with ClientRouter: https://github.com/withastro/astro/issues/12804
-		build: {
-			assetsInlineLimit: 0,
-		},
 	},
 });

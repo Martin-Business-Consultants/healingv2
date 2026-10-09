@@ -2,25 +2,27 @@
 /**
  * * Case study card: photo, location tag, title, summary, and a link to the full study
  */
-import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
+import CmsImage from "@components/CmsImage/CmsImage.astro";
 import { Icon } from "astro-icon/components";
 
+import { type CaseStudy, getSiteSettings, recordHref } from "@/lib/cms";
+
 interface Props {
-	portfolio: CollectionEntry<"portfolios">;
+	portfolio: CaseStudy;
 	direction: "horizontal" | "vertical";
 	featured?: boolean;
 	noTransitions?: boolean;
 }
 
 const { portfolio, direction, featured = false, noTransitions = false } = Astro.props as Props;
-const { title, description, heroImage, location } = portfolio.data;
-const href = `/portfolio/${portfolio.id}`;
+const { description, hero_image, location } = portfolio.frontmatter;
+const linkLabel = (await getSiteSettings()).case_study_page?.card_link_label || "Read the case study";
 const imgClass = "h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]";
+const sizes = featured ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 768px) 33vw, 100vw";
 ---
 
 <a
-	href={href}
+	href={recordHref(portfolio)}
 	class:list={[
 		"group grid content-start gap-5",
 		{ "sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:items-center sm:gap-7": direction === "horizontal" },
@@ -34,34 +36,25 @@ const imgClass = "h-full w-full object-cover transition-transform duration-700 e
 	>
 		{
 			noTransitions ? (
-				<Image src={heroImage} alt="" width={featured ? 900 : 560} densities={[1.5, 2]} class={imgClass} />
+				<CmsImage id={hero_image} alt="" sizes={sizes} class={imgClass} />
 			) : (
-				<Image
-					src={heroImage}
-					alt=""
-					width={featured ? 900 : 560}
-					densities={[1.5, 2]}
-					class={imgClass}
-					transition:name={`portfolio-image-${portfolio.id}`}
-				/>
+				<CmsImage id={hero_image} alt="" sizes={sizes} class={imgClass} transition:name={`portfolio-image-${portfolio.slug}`} />
 			)
 		}
 	</div>
 	<div class="min-w-0">
-		<p class="eyebrow">{location}</p>
+		{location && <p class="eyebrow">{location}</p>}
 		<h3
 			class:list={[
 				"font-heading-1 text-base-900 mt-2 leading-tight font-medium",
 				featured ? "text-3xl md:text-4xl" : "text-2xl",
 			]}
 		>
-			{title}
+			{portfolio.title}
 		</h3>
 		<p class="description mt-3 text-pretty">{description}</p>
-		<span
-			class="font-heading-2 text-primary-800 mt-4 inline-flex items-center gap-2 font-semibold"
-		>
-			Read the case study
+		<span class="font-heading-2 text-primary-800 mt-4 inline-flex items-center gap-2 font-semibold">
+			{linkLabel}
 			<Icon
 				name="mynaui/arrow-long-right"
 				class="size-5 transition-transform duration-200 group-hover:translate-x-1"

@@ -1,0 +1,55 @@
+---
+/**
+ * * Steps through the seasons (CMS block "steps"), with links below.
+ */
+
+import Button from "@components/Button/Button.astro";
+import type { StepsBlock } from "librepublish:types";
+
+import { href } from "@/lib/cms";
+
+type Props = StepsBlock;
+
+const { eyebrow, heading, items = [], button_label, button_link, secondary_label, secondary_link } = Astro.props;
+const buttonHref = href(button_link);
+const secondaryHref = href(secondary_link);
+---
+
+<section class="section bg-base-100">
+	<div class="site-container">
+		<div data-reveal>
+			{eyebrow && <p class="eyebrow">{eyebrow}</p>}
+			<h2 class="h2 mt-3">{heading}</h2>
+		</div>
+		<ol class="mt-12 grid gap-10 md:grid-cols-3" data-reveal-group>
+			{
+				items.map((step) => (
+					<li class="bg-base-50 border-base-200 rounded-2xl border p-7">
+						{step.season && <p class="font-heading-1 text-bloom text-4xl italic">{step.season}</p>}
+						<h3 class="h3 text-base-900 mt-4">{step.title}</h3>
+						{step.text && <p class="description mt-2">{step.text}</p>}
+					</li>
+				))
+			}
+		</ol>
+		{
+			((button_label && buttonHref) || (secondary_label && secondaryHref)) && (
+				<div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4" data-reveal>
+					{button_label && buttonHref && (
+						<Button href={buttonHref} variant="primary" arrow="right">
+							{button_label}
+						</Button>
+					)}
+					{secondary_label && secondaryHref && (
+						<a
+							href={secondaryHref}
+							class="font-heading-2 text-primary-800 font-semibold underline decoration-1 underline-offset-[6px]"
+						>
+							{secondary_label}
+						</a>
+					)}
+				</div>
+			)
+		}
+	</div>
+</section>

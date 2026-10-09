@@ -1,0 +1,56 @@
+---
+/**
+ * * A page's blocks, rendered by @librepublish/astro's <Blocks>: each block's data becomes its
+ * component's props (plus `block`, `resolved` and `assets`). To add a block type, create it in the
+ * CMS (`cms post /block_types`), build a component, and register it below under the type's slug.
+ * A block type with no component is skipped (with a warning in `astro dev`).
+ */
+import About from "@components/About/About.astro";
+import FeatureNumbers from "@components/Feature/FeatureNumbers.astro";
+import Hero from "@components/Hero/Hero.astro";
+import PageHeader from "@components/PageHeader/PageHeader.astro";
+import PageTitle from "@components/PageHeader/PageTitle.astro";
+import CaseStudies from "@components/Portfolio/CaseStudies.astro";
+import ProofStrip from "@components/Proof/ProofStrip.astro";
+import Callout from "@components/Sections/Callout.astro";
+import Offer from "@components/Sections/Offer.astro";
+import Prose from "@components/Sections/Prose.astro";
+import Reasons from "@components/Sections/Reasons.astro";
+import Steps from "@components/Sections/Steps.astro";
+import Story from "@components/Sections/Story.astro";
+import ServicesSection from "@components/Services/ServicesSection.astro";
+import TestimonialQuote from "@components/Testimonials/TestimonialQuote.astro";
+import Testimonials from "@components/Testimonials/Testimonials.astro";
+import type { CmsBlock } from "@librepublish/astro/client";
+import Blocks from "@librepublish/astro/components/Blocks.astro";
+
+import ContactBlock from "./ContactBlock.astro";
+
+interface Props {
+	blocks: CmsBlock[] | null | undefined;
+}
+
+const components = {
+	home_hero: Hero,
+	page_header: PageHeader,
+	page_title: PageTitle,
+	proof_strip: ProofStrip,
+	what_i_do: FeatureNumbers,
+	case_studies: CaseStudies,
+	testimonials: Testimonials,
+	services_list: ServicesSection,
+	about_intro: About,
+	story: Story,
+	offer: Offer,
+	reasons: Reasons,
+	steps: Steps,
+	pull_quote: TestimonialQuote,
+	contact: ContactBlock,
+	// the CMS's built-in block types the site designs
+	cta_band: Callout,
+	text: Prose,
+	quote: TestimonialQuote,
+};
+---
+
+<Blocks blocks={Astro.props.blocks ?? []} components={components} />

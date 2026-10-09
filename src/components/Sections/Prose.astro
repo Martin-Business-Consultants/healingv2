@@ -1,0 +1,16 @@
+---
+/**
+ * * A Markdown body of text (the CMS's built-in "text" block), e.g. the privacy policy.
+ */
+
+import type { TextBlock } from "librepublish:types";
+import { marked } from "marked";
+
+type Props = TextBlock;
+
+const html = await marked.parse(Astro.props.body ?? "");
+---
+
+<section class="mx-auto max-w-3xl px-4 pb-16 md:pb-24">
+	<div class="text-base-content markdown-content mt-8 max-w-none text-sm md:mt-12 md:px-8 md:text-base" set:html={html} />
+</section>

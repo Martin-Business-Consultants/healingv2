@@ -1,0 +1,23 @@
+# Cloudflare Worker for healingearthdesignbysarah.com: the static Astro build
+# in `dist/`, served as Workers static assets. There is no Worker code; CMS
+# images are downloaded into the build (integrations/cms-media.mjs) and the
+# contact form posts straight to the CMS.
+#
+# Pass the account as CLOUDFLARE_ACCOUNT_ID rather than committing
+# account_id, so the same file deploys wherever the login points.
+#
+#   pnpm run deploy
+#
+# No tokens live here. The build reads CMS_BASE_URL and CMS_API_TOKEN from
+# its environment (see .env.example).
+name = "healingearthdesign"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = true
+
+[assets]
+directory = "./dist"
+# Unknown paths get dist/404.html with a 404 status.
+not_found_handling = "404-page"
+# Pages are files (about.html), served at /about; /about/ redirects there.
+html_handling = "drop-trailing-slash"

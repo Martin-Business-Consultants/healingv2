@@ -1,0 +1,14 @@
+---
+/**
+ * * The "contact" block: the contact section, with the block's heading, description, preselected
+ * service and source over Site settings › Contact section.
+ */
+import Contact from "@components/Contact/Contact.astro";
+import type { ContactBlock } from "librepublish:types";
+
+type Props = ContactBlock;
+
+const { heading, description, service, source } = Astro.props;
+---
+
+<Contact heading={heading} description={description} selected={service} source={source} />

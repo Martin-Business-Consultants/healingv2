@@ -1,67 +1,61 @@
 ---
 /**
- * * Contact section for the website
+ * * Contact section: copy, highlights and a photo beside the contact form. Everything defaults to
+ * Site settings › Contact section in the CMS; a Contact form block can override the heading and
+ * description, preselect a service and name the source.
  */
 
+import CmsImage from "@components/CmsImage/CmsImage.astro";
 import ContactForm from "@components/Forms/ContactForm.astro";
-import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
-import type { ImageMetadata } from "astro";
+
+import { getSiteSettings } from "@/lib/cms";
 
 interface Props {
 	class?: string;
-	heading?: string;
-	description?: string;
-	image?: ImageMetadata;
-	selected?: string; // service id to preselect in the form
-	source?: string; // page or campaign the request came from
+	heading?: string | null;
+	description?: string | null;
+	selected?: string | null; // service slug to preselect in the form
+	source?: string | null; // page or campaign the request came from
 }
 
-const {
-	class: className,
-	heading = "Let's plan your garden",
-	description = "Tell me a little about your space and what you'd like to grow. I reply within 1–2 business days, and most projects start with a garden consultation, on-site or virtual.",
-	image,
-	selected,
-	source,
-} = Astro.props;
-
-const contactImage = image ?? (await import("@assets/images/IMG_0024.webp")).default;
+const { class: className, heading, description, selected, source } = Astro.props;
+const contact = (await getSiteSettings()).contact;
+const icons = ["tabler:clock", "tabler:map-pin", "tabler:plant-2"];
 ---
 
-<section id="contact" class:list={["section bg-primary-50", className]}>
+<section id="contact" class:list={["section bg-primary-50 scroll-mt-16", className]}>
 	<div class="site-container grid items-start gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-20">
 		<div class="min-w-0" data-reveal>
-			<p class="eyebrow">Contact</p>
-			<h2 class="h2 mt-3">{heading}</h2>
-			<p class="description mt-5 max-w-[32rem] text-lg">{description}</p>
+			{contact?.eyebrow && <p class="eyebrow">{contact.eyebrow}</p>}
+			<h2 class="h2 mt-3">{heading || contact?.heading}</h2>
+			{
+				(description || contact?.description) && (
+					<p class="description mt-5 max-w-[32rem] text-lg">{description || contact?.description}</p>
+				)
+			}
 
-			<ul class="mt-8 flex flex-col gap-4">
-				<li class="flex items-center gap-3">
-					<Icon name="tabler:clock" class="text-primary-600 size-5 shrink-0" aria-hidden="true" />
-					<span>Replies within 1–2 business days</span>
-				</li>
-				<li class="flex items-center gap-3">
-					<Icon name="tabler:map-pin" class="text-primary-600 size-5 shrink-0" aria-hidden="true" />
-					<span>Consultations on-site or virtual</span>
-				</li>
-				<li class="flex items-center gap-3">
-					<Icon name="tabler:plant-2" class="text-primary-600 size-5 shrink-0" aria-hidden="true" />
-					<span>No obligation to book a design</span>
-				</li>
-			</ul>
+			{
+				contact?.highlights?.length ? (
+					<ul class="mt-8 flex flex-col gap-4">
+						{contact.highlights.map((item, i) => (
+							<li class="flex items-center gap-3">
+								<Icon name={icons[i % icons.length]} class="text-primary-600 size-5 shrink-0" aria-hidden="true" />
+								<span>{item}</span>
+							</li>
+						))}
+					</ul>
+				) : null
+			}
 
 			<div class="bg-base-200 mt-10 hidden aspect-[4/3] overflow-hidden rounded-xl lg:block">
-				<Image
-					src={contactImage}
-					alt="A finished garden by Healing Earth Design"
-					width={560}
-					densities={[1.5, 2]}
-					class="h-full w-full object-cover"
-				/>
+				<CmsImage id={contact?.image} sizes="(min-width: 1024px) 34rem, 100vw" class="h-full w-full object-cover" />
 			</div>
 		</div>
-		<div class="bg-base-50 border-base-200 min-w-0 rounded-2xl border p-6 shadow-[0_24px_60px_-36px_var(--color-primary-900)] md:p-10" data-reveal>
+		<div
+			class="bg-base-50 border-base-200 min-w-0 rounded-2xl border p-6 shadow-[0_24px_60px_-36px_var(--color-primary-900)] md:p-10"
+			data-reveal
+		>
 			<ContactForm selected={selected} source={source} />
 		</div>
 	</div>

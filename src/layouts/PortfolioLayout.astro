@@ -1,74 +1,67 @@
 ---
+import CmsImage from "@components/CmsImage/CmsImage.astro";
 import Contact from "@components/Contact/Contact.astro";
-import PortfolioImage from "@components/PorfolioImage/PortfolioImage.astro";
 import PortfolioGrid from "@components/Portfolio/PortfolioGrid.astro";
 import TestimonialQuote from "@components/Testimonials/TestimonialQuote.astro";
 import { Icon } from "astro-icon/components";
-import { Image } from "astro:assets";
-import { type CollectionEntry, getCollection } from "astro:content";
+import { marked } from "marked";
+
+import { type CaseStudy, getSiteSettings, listCaseStudies, plainText } from "@/lib/cms";
 
 import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
-	portfolio: CollectionEntry<"portfolios">;
+	portfolio: CaseStudy;
 }
 
 const { portfolio } = Astro.props as Props;
-const { title, description, date, images, clients, location, heroImage, goal, challenges, solution, outcome } = portfolio.data;
+const { description, location, hero_image, goal, challenges, solution, outcome, gallery = [] } = portfolio.frontmatter;
 
 const cards = [
-	{ icon: "tabler:target", title: "Goal", text: goal },
-	{ icon: "tabler:alert-triangle", title: "Challenges", text: challenges },
-	{ icon: "tabler:bulb", title: "Solution", text: solution },
-	{ icon: "tabler:plant-2", title: "Outcome", text: outcome },
+	{ icon: "tabler:target", title: "Goal", text: plainText(goal) },
+	{ icon: "tabler:alert-triangle", title: "Challenges", text: plainText(challenges) },
+	{ icon: "tabler:bulb", title: "Solution", text: plainText(solution) },
+	{ icon: "tabler:plant-2", title: "Outcome", text: plainText(outcome) },
 ];
 
-// find other portfolios to show later down the page
-const otherPortfolios = await getCollection("portfolios", (otherPortfolio) => {
-	// filter out draft pages
-	return otherPortfolio.data.draft !== true && otherPortfolio.id !== portfolio.id;
-});
+const rows = (gallery ?? []).map((row) => (row.images ?? []).map((item) => item.image).filter(Boolean)).filter((row) => row.length);
+const body = portfolio.body_markdown?.trim() ? await marked.parse(portfolio.body_markdown) : "";
+const otherPortfolios = (await listCaseStudies()).filter((other) => other.slug !== portfolio.slug);
+const moreHeading = (await getSiteSettings()).case_study_page?.more_heading;
+const record = {
+	...portfolio,
+	seo: {
+		...portfolio.seo,
+		meta_description: portfolio.seo?.meta_description || description,
+		og_image_id: portfolio.seo?.og_image_id || hero_image,
+	},
+};
 ---
 
-<BaseLayout
-	type="general"
-	title={title}
-	description={description}
-	heroImage={heroImage}
-	navStartStyle="white"
->
+<BaseLayout record={record} navStartStyle="white">
 	<div class="relative h-[50svh] w-full overflow-hidden md:h-[70svh]">
 		<div class="absolute inset-0 z-10 bg-black/30"></div>
-		<Image
-			src={heroImage}
-			alt={`cover for ${title}`}
-			class="absolute inset-0 h-full w-full object-cover object-center md:hidden"
-			width={800}
-			densities={[1.5, 2]}
+		<CmsImage
+			id={hero_image}
+			alt=""
+			class="absolute inset-0 h-full w-full object-cover object-center"
+			sizes="100vw"
 			loading="eager"
-			transition:name={`portfolio-image-${portfolio.id}`}
-		/>
-		<Image
-			src={heroImage}
-			alt={`cover for ${title}`}
-			class="absolute inset-0 hidden h-full w-full object-cover object-center md:block"
-			width={1920}
-			densities={[1.5, 2]}
-			loading="eager"
+			fetchpriority="high"
+			transition:name={`portfolio-image-${portfolio.slug}`}
 		/>
 	</div>
 
 	<article class="mx-auto mt-12 px-4 md:mt-20 md:max-w-6xl">
-		<h1 class="h1 description mt-4 text-center uppercase">
-			{title}
-		</h1>
+		<h1 class="h1 description mt-4 text-center uppercase">{portfolio.title}</h1>
 
-		<!-- location -->
-		<h2
-			class="h3 text-primary-500 mt-10 flex flex-col items-center justify-center gap-x-3 gap-y-1 tracking-widest md:flex-row"
-		>
-			<span>{location}</span>
-		</h2>
+		{
+			location && (
+				<h2 class="h3 text-primary-500 mt-10 flex flex-col items-center justify-center gap-x-3 gap-y-1 tracking-widest md:flex-row">
+					<span>{location}</span>
+				</h2>
+			)
+		}
 
 		<!-- goal / challenges / solution / outcome cards -->
 		<div class="mt-10 grid gap-6 sm:grid-cols-2 md:mt-16 md:gap-8">
@@ -82,27 +75,31 @@ const otherPortfolios = await getCollection("portfolios", (otherPortfolio) => {
 							</div>
 							<p class="description mt-4 text-pretty md:text-lg">{card.text}</p>
 						</div>
-					) : null
+					) : null,
 				)
 			}
 		</div>
 
-		<!-- portfolio images -->
+		{body && <div class="markdown-content mx-auto mt-12 max-w-3xl" set:html={body} />}
+
+		<!-- photo rows: one, two or three photos side by side -->
 		<div class="mx-auto mt-12 max-w-5xl space-y-6 md:mt-20 md:space-y-16">
 			{
-				images.map((imageGroup) => (
+				rows.map((row) => (
 					<div
 						class:list={[
 							"mb-6 grid gap-6 md:gap-16",
-							{
-								"grid-cols-1": imageGroup.length === 1,
-								"grid-cols-2": imageGroup.length === 2,
-								"grid-cols-3": imageGroup.length === 3,
-							},
+							{ "grid-cols-1": row.length === 1, "grid-cols-2": row.length === 2, "grid-cols-3": row.length >= 3 },
 						]}
 					>
-						{imageGroup.map((image) => (
-							<PortfolioImage image={image} numCols={imageGroup.length} />
+						{row.map((image) => (
+							<div class="h-full w-full max-w-6xl">
+								<CmsImage
+									id={image}
+									sizes={`(min-width: 1024px) ${Math.round(1120 / row.length)}px, ${Math.round(100 / row.length)}vw`}
+									class="h-auto min-h-full w-full min-w-full object-cover"
+								/>
+							</div>
 						))}
 					</div>
 				))
@@ -112,9 +109,13 @@ const otherPortfolios = await getCollection("portfolios", (otherPortfolio) => {
 
 	<TestimonialQuote />
 
-	<section class="mx-auto mt-12 px-4 md:mt-16 md:max-w-5xl">
-		<h3 class="h2 text-center">More Case Studies</h3>
-		<PortfolioGrid portfolios={otherPortfolios} noTransitions />
-	</section>
-	<Contact class="mt-12" />
+	{
+		otherPortfolios.length > 0 && (
+			<section class="mx-auto mt-12 px-4 md:mt-16 md:max-w-5xl">
+				{moreHeading && <h3 class="h2 text-center">{moreHeading}</h3>}
+				<PortfolioGrid portfolios={otherPortfolios} noTransitions />
+			</section>
+		)
+	}
+	<Contact class="mt-12" source={`case study: ${portfolio.title}`} />
 </BaseLayout>

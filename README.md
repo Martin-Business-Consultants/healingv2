@@ -1,74 +1,61 @@
-# Healing v2
+# Healing Earth Design
 
-A modern wellness platform built with Astro and React.
+The website for Healing Earth Design, Sarah Martin's plant-forward garden and landscape design
+practice: https://healingearthdesignbysarah.com
 
-## Overview
+An Astro 7 site that renders content from a [LibrePublish](https://github.com/Martin-Business-Consultants/cmsv2)
+CMS through [`@librepublish/astro`](https://github.com/Martin-Business-Consultants/libre-cms-astro),
+built as static files and served by a Cloudflare Worker.
 
-Healing v2 is a comprehensive wellness and healing platform featuring a modern static site architecture with dynamic capabilities. This version represents a significant upgrade with enhanced performance and user experience.
+**Read [AGENTS.md](AGENTS.md) before changing the site.** It explains how the site and the CMS fit
+together, and the Site health checks the site is held to.
 
-## Features
+## Where things live
 
-- **Static Site Generation**: Fast, SEO-friendly pages with Astro
-- **Dynamic Components**: Interactive UI with React and Svelte
-- **Content Management**: Headless CMS integration with Keystatic
-- **Email Integration**: MJML-based email templates with Postmark
-- **Forms**: Cloudflare Turnstile for spam protection
-- **Responsive Design**: Tailwind CSS for mobile-first design
+| In the CMS | In this repo |
+|---|---|
+| Every page and its sections (blocks), with SEO | Layouts, components and styles |
+| Services, Case studies and Testimonials collections | How each block type and entry is drawn |
+| Site settings, navigation, footer, announcement banner | Routes (`src/pages`) |
+| Photos, with alt text (media library) | Build and deploy config |
+| The contact form, its fields and its emails' words | The emails' design (`src/pages/emails`) |
+| Redirects, business details, brand brief | |
 
-## Tech Stack
+Nothing an editor would expect to change is written into the code. To change copy, a photo, a
+service or a case study, edit it in the CMS and publish: the site rebuilds.
 
-- **Framework**: Astro 4.x
-- **UI Libraries**: React 18, Svelte 5
-- **Styling**: Tailwind CSS 3.x
-- **Content**: Keystatic CMS
-- **Email**: MJML, Postmark
-- **Deployment**: Netlify
-- **Type Safety**: TypeScript
+- **Pages** are built from blocks. `src/components/blocks/BlockRenderer.astro` maps each CMS block
+  type to its component. A new block type needs a component registered there.
+- **Services** (`/services/<slug>`) and **case studies** (`/portfolio/<slug>`) have their own
+  templates, fed by their collections.
+- **The contact form** posts straight to the CMS, which stores the submission, checks it for spam,
+  and sends the notification and confirmation emails. The emails are designed in
+  `src/pages/emails/[form]/[kind].astro`; each build sends that design to the CMS.
+- **Images** come from the CMS media library and are downloaded into the build
+  (`integrations/cms-media.mjs`), so the deployed site serves its own copies under `/media`.
 
-## Prerequisites
+## Develop
 
-- Node.js 18+
-- pnpm (recommended) or npm
-
-## Setup
-
-1. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-2. Setup environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-3. Start the development server:
-   ```bash
-   pnpm dev
-   ```
-
-## Development
-
-### Available Scripts
-
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production
-- `pnpm preview` - Preview production build
-- `pnpm format` - Format code with Prettier
-- `pnpm lint` - Run ESLint
-
-### Content Management
-
-Content is managed through Keystatic CMS. Access the admin panel at `/keystatic` during development.
-
-## Deployment
-
-Built for deployment on Netlify with static site generation.
-
-```bash
-pnpm build
+```sh
+pnpm install
+cp .env.example .env   # then add the site's read-only service token (cms service-tokens)
+pnpm dev               # http://localhost:4321
+pnpm build             # static site in dist/
 ```
+
+The build needs `CMS_BASE_URL` and `CMS_API_TOKEN` (a token on the CMS's **Production site** role).
+It fails rather than ship a site with missing content.
+
+## Deploy
+
+```sh
+pnpm run deploy        # astro build && wrangler deploy
+```
+
+For automatic rebuilds when content is published, connect this repo under Cloudflare Workers ›
+Builds (build `pnpm run build`, deploy `npx wrangler deploy`, with `CMS_BASE_URL` and
+`CMS_API_TOKEN` set), then give the CMS its deploy hook:
+`cms patch /deploy '{"deploy":{"url":"…"}}'`.
 
 ## License
 

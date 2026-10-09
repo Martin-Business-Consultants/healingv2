@@ -1,94 +1,18 @@
-import { glob } from "astro/loaders";
-import { defineCollection, reference, z } from "astro:content";
-
-// Type-check frontmatter using a schema
-// portfolios
-const portfolios = defineCollection({
-	// type: "content",
-	loader: glob({
-		pattern: "**/[^_]*.{md,mdx}",
-		base: "./src/data/portfolios",
-	}),
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			heroImage: image(),
-			clients: z.array(z.string()),
-			location: z.string(),
-			images: z.array(
-				z.array(image()).refine((arr) => [1, 2, 3].includes(arr.length), {
-					message: "Each sub-array must contain 1, 2, or 3 items",
-				}),
-			),
-			goal: z.string().optional(),
-			challenges: z.string().optional(),
-			solution: z.string().optional(),
-			outcome: z.string().optional(),
-			// Transform string to Date object
-			date: z.coerce.date(),
-			order: z.number(),
-			// will be excluded from build if draft is "true"
-			draft: z.boolean().optional(),
-		}),
-});
-
-// testimonials
-const testimonials = defineCollection({
-	// type: "content",
-	loader: glob({
-		pattern: "**/[^_]*.{md,mdx}",
-		base: "./src/data/testimonials",
-	}),
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			testimonial: z.string(),
-			image: image(),
-			order: z.number(),
-			// will be excluded from build if draft is "true"
-			draft: z.boolean().optional(),
-		}),
-});
-
-// services
-const services = defineCollection({
-	loader: glob({
-		pattern: "**/[^_]*.{md,mdx}",
-		base: "./src/data/services",
-	}),
-	schema: ({ image }) =>
-		z.object({
-			name: z.string(),
-			icon: z.string(),
-			summary: z.string().optional(),
-			image: image().optional(),
-			// kept for reference in the CMS; not shown on the site
-			price: z.string().optional(),
-			features: z.array(z.string()),
-			order: z.number(),
-			draft: z.boolean().optional(),
-		}),
-});
-
-// other pages
-const otherPages = defineCollection({
-	// type: "content",
-	loader: glob({
-		pattern: "**/[^_]*.{md,mdx}",
-		base: "./src/data/otherPages",
-	}),
-	schema: () =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			draft: z.boolean().optional(),
-		}),
-});
+// Everything the site shows comes from LibrePublish through the
+// @librepublish/astro loaders. Between them they read GET /api/v1/content
+// once per build — live content only, and after the first build only what
+// changed — so these collections are the site's whole view of the CMS.
+//
+// Ids: a page's path ("home", "about"), an entry's slug, a global's slug,
+// an asset's id. Read them through src/lib/cms.ts.
+import { cmsAssets, cmsEntries, cmsGlobals, cmsPages } from "@librepublish/astro/loaders";
+import { defineCollection } from "astro:content";
 
 export const collections = {
-	portfolios,
-	testimonials,
-	otherPages,
-	services,
+	pages: defineCollection({ loader: cmsPages() }),
+	globals: defineCollection({ loader: cmsGlobals() }),
+	assets: defineCollection({ loader: cmsAssets() }),
+	services: defineCollection({ loader: cmsEntries("services") }),
+	portfolio: defineCollection({ loader: cmsEntries("portfolio") }),
+	testimonials: defineCollection({ loader: cmsEntries("testimonials") }),
 };

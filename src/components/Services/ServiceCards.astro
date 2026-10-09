@@ -1,20 +1,19 @@
 ---
 /**
- * * Service cards. Each links to its own page at /services/<id>/
+ * * Service cards, from the Services collection in its order. Each links to its own page.
  */
 
 import { Icon } from "astro-icon/components";
-import { getCollection } from "astro:content";
+
+import { listServices, recordHref } from "@/lib/cms";
 
 interface Props {
-	exclude?: string; // a service id to leave out, e.g. the one whose page you're on
+	exclude?: string; // a service slug to leave out, e.g. the one whose page you're on
 }
 
 const { exclude } = Astro.props;
 
-const services = (await getCollection("services", ({ data, id }) => data.draft !== true && id !== exclude)).sort(
-	(a, b) => a.data.order - b.data.order,
-);
+const services = (await listServices()).filter((service) => service.slug !== exclude);
 const n = services.length;
 
 // fill every row: 5 cards lay out as 3 + 2 on large screens; an odd last card spans both columns on tablets
@@ -34,14 +33,14 @@ function spanFor(i: number) {
 		services.map((service, i) => (
 			<li class:list={["min-w-0", spanFor(i)]}>
 				<a
-					href={`/services/${service.id}/`}
+					href={recordHref(service)}
 					class="group bg-base-50 border-base-200 hover:border-primary-300 flex h-full flex-col rounded-2xl border p-6 transition-[border-color,box-shadow] duration-300 hover:shadow-[0_20px_40px_-28px_var(--color-primary-900)] md:p-7"
 				>
 					<span class="bg-primary-100 text-primary-700 grid size-11 place-items-center rounded-full">
-						<Icon name={service.data.icon} class="size-6" aria-hidden="true" />
+						<Icon name={`tabler:${service.frontmatter.icon}`} class="size-6" aria-hidden="true" />
 					</span>
-					<h3 class="font-heading-1 text-base-900 mt-5 text-2xl leading-tight">{service.data.name}</h3>
-					{service.data.summary && <p class="description mt-3 text-pretty">{service.data.summary}</p>}
+					<h3 class="font-heading-1 text-base-900 mt-5 text-2xl leading-tight">{service.title}</h3>
+					{service.frontmatter.summary && <p class="description mt-3 text-pretty">{service.frontmatter.summary}</p>}
 					<span class="font-heading-2 text-primary-800 mt-auto inline-flex items-center gap-2 pt-6 font-semibold">
 						Learn more
 						<Icon

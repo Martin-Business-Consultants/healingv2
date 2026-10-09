@@ -1,5 +1,7 @@
 allowBuilds:
+  "@librepublish/astro@https://codeload.github.com/Martin-Business-Consultants/libre-cms-astro/tar.gz/d217624244f44372fda2ea9581a0d3b60d01747c": true
   esbuild: true
   sharp: true
+  workerd: true
 nodeLinker: hoisted
 autoInstallPeers: true

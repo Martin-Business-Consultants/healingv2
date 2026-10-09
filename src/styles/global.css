@@ -104,3 +104,8 @@
 		@apply rotate-180;
 	}
 }
+
+/* Rich-text fields from the CMS (HTML paragraphs) */
+.prose-cms > * + * {
+	margin-top: 1em;
+}

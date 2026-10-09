@@ -1,13 +1,13 @@
 ---
 /**
- * * Credentials strip shown directly under the hero
+ * * Credentials strip (CMS block "proof_strip"), shown directly under the hero
  */
 
 interface Props {
 	items: string[];
 }
 
-const { items } = Astro.props as Props;
+const { items = [] } = Astro.props as Props;
 ---
 
 <section aria-label="Why work with Sarah" class="bg-primary-900 text-primary-50">

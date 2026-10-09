@@ -1,35 +1,39 @@
 ---
 /**
- * * Home page services overview
+ * * Services (CMS block "services_list"): every published service as a card. With a heading it is
+ * a full section with an intro and a button; without, just the cards.
  */
 
 import Button from "@components/Button/Button.astro";
 import ServiceCards from "@components/Services/ServiceCards.astro";
+import type { ServicesListBlock } from "librepublish:types";
 
-interface Props {
-	heading?: string;
-	ctaText?: string;
-}
+import { href } from "@/lib/cms";
 
-const { heading = "Plant-forward help, from first visit to planting day", ctaText = "See all services" } =
-	Astro.props;
+type Props = ServicesListBlock;
+
+const { eyebrow, heading, body, button_label, button_link, background } = Astro.props;
+const buttonHref = href(button_link);
 ---
 
-<section id="services" class="section bg-base-100">
+<section id="services" class:list={["section", { "bg-base-100": background === "tinted" }]}>
 	<div class="site-container">
-		<div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
-			<div class="max-w-[40rem]">
-				<p class="eyebrow">Services</p>
-				<h2 class="h2 mt-3">{heading}</h2>
-				<p class="description mt-5 text-lg">
-					Every service is tailored to your space, lifestyle, and experience level, and focused on
-					plants, with no hardscape installation.
-				</p>
-			</div>
-			<Button href="/services/" variant="outline" arrow="right">{ctaText}</Button>
-		</div>
-		<div class="mt-12 md:mt-16">
-			<ServiceCards />
-		</div>
+		{
+			heading && (
+				<div class="mb-12 flex flex-wrap items-end justify-between gap-6 md:mb-16" data-reveal>
+					<div class="max-w-[40rem]">
+						{eyebrow && <p class="eyebrow">{eyebrow}</p>}
+						<h2 class="h2 mt-3">{heading}</h2>
+						{body && <p class="description mt-5 text-lg">{body}</p>}
+					</div>
+					{button_label && buttonHref && (
+						<Button href={buttonHref} variant="outline" arrow="right">
+							{button_label}
+						</Button>
+					)}
+				</div>
+			)
+		}
+		<ServiceCards />
 	</div>
 </section>

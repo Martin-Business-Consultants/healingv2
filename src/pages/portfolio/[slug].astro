@@ -1,0 +1,16 @@
+---
+/**
+ * A case study's own page, from its entry in the CMS's Case studies collection.
+ */
+import PortfolioLayout from "@layouts/PortfolioLayout.astro";
+
+import { type CaseStudy, listCaseStudies } from "@/lib/cms";
+
+export async function getStaticPaths() {
+	return (await listCaseStudies()).map((portfolio) => ({ params: { slug: portfolio.slug }, props: { portfolio } }));
+}
+
+const { portfolio } = Astro.props as { portfolio: CaseStudy };
+---
+
+<PortfolioLayout portfolio={portfolio} />

@@ -1,0 +1,44 @@
+---
+/**
+ * * An image from the CMS media library, by asset id: its renditions as a
+ * srcset, its size, its alt text, and its focal point as the crop position.
+ * Renders nothing for a missing or deleted asset.
+ */
+import { resolveImage } from "@/lib/cms";
+
+interface Props {
+	id: string | number | null | undefined;
+	/** Overrides the alt text from the media library ("" for a decorative image). */
+	alt?: string;
+	sizes?: string;
+	class?: string;
+	/** CSS object-position; defaults to the focal point set in the media library. */
+	position?: string | null;
+	loading?: "lazy" | "eager";
+	fetchpriority?: "high" | "low" | "auto";
+	[key: string]: unknown;
+}
+
+const { id, alt, sizes = "100vw", class: className, position, loading = "lazy", fetchpriority, ...rest } = Astro.props;
+const image = await resolveImage(id);
+const objectPosition = position || image?.position;
+---
+
+{
+	image && (
+		<img
+			src={image.src}
+			srcset={image.srcset}
+			sizes={image.srcset ? sizes : undefined}
+			width={image.width}
+			height={image.height}
+			alt={alt ?? image.alt}
+			loading={loading}
+			decoding={loading === "eager" ? "sync" : "async"}
+			fetchpriority={fetchpriority}
+			class={className}
+			style={objectPosition ? `object-position: ${objectPosition}` : undefined}
+			{...rest}
+		/>
+	)
+}

@@ -1,15 +1,18 @@
 ---
 /**
- * * Top announcement banner for the fall planning special. Content and on/off switch live in
- * src/data/pages/fall-planning.json. Folds away once the page is scrolled (see Nav styles).
+ * * Top announcement banner (CMS global "announcement": its text, link and on/off switch).
+ * Hidden on the page it links to. Folds away once the page is scrolled (see Nav styles).
  */
 
 import { Icon } from "astro-icon/components";
-import fallData from "@/data/pages/fall-planning.json";
 
-const href = "/fall-planning/";
-const onPage = Astro.url.pathname.replace(/\/$/, "") === href.replace(/\/$/, "");
-const show = fallData.banner.enabled && !onPage;
+import { getAnnouncement, href } from "@/lib/cms";
+
+const banner = await getAnnouncement();
+const link = href(banner.link);
+const strip = (path: string) => path.replace(/(\.html|\/)$/, "") || "/";
+const onPage = link ? strip(Astro.url.pathname) === strip(link) : false;
+const show = banner.enabled && banner.text && !onPage;
 ---
 
 {
@@ -17,18 +20,20 @@ const show = fallData.banner.enabled && !onPage;
 		<div class="announcement grid">
 			<div class="overflow-hidden">
 				<a
-					href={href}
+					href={link ?? "#"}
 					class="group bg-bloom-deep text-base-50 flex items-center justify-center gap-x-3 px-4 py-2.5 text-center text-sm leading-snug"
 				>
-					<span>{fallData.banner.text}</span>
-					<span class="font-heading-2 inline-flex shrink-0 items-center gap-1 font-semibold underline decoration-1 underline-offset-4">
-						{fallData.banner.linkText}
-						<Icon
-							name="mynaui/arrow-long-right"
-							class="size-4 transition-transform duration-200 group-hover:translate-x-1"
-							aria-hidden="true"
-						/>
-					</span>
+					<span>{banner.text}</span>
+					{banner.link_label && (
+						<span class="font-heading-2 inline-flex shrink-0 items-center gap-1 font-semibold underline decoration-1 underline-offset-4">
+							{banner.link_label}
+							<Icon
+								name="mynaui/arrow-long-right"
+								class="size-4 transition-transform duration-200 group-hover:translate-x-1"
+								aria-hidden="true"
+							/>
+						</span>
+					)}
 				</a>
 			</div>
 		</div>
