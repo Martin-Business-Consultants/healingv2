@@ -1,0 +1,89 @@
+---
+/**
+ * A service's own page, from its entry in the CMS's Services collection. The words around it
+ * (eyebrow, buttons, headings) are in Site settings › Service pages.
+ */
+import Button from "@components/Button/Button.astro";
+import Contact from "@components/Contact/Contact.astro";
+import PageHeader from "@components/PageHeader/PageHeader.astro";
+import ServiceCards from "@components/Services/ServiceCards.astro";
+import TestimonialQuote from "@components/Testimonials/TestimonialQuote.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { Icon } from "astro-icon/components";
+import { marked } from "marked";
+
+import { getSiteSettings, listServices, type Service } from "@/lib/cms";
+
+export async function getStaticPaths() {
+	return (await listServices()).map((service) => ({ params: { slug: service.slug }, props: { service } }));
+}
+
+const { service } = Astro.props as { service: Service };
+const { summary, features = [], image } = service.frontmatter;
+const labels = (await getSiteSettings()).service_page ?? {};
+const fallbackImage = (await listServices())[0]?.frontmatter.image;
+const body = service.body_markdown?.trim() ? await marked.parse(service.body_markdown) : "";
+const record = { ...service, seo: { ...service.seo, meta_description: service.seo?.meta_description || summary } };
+---
+
+<BaseLayout record={record} navStartStyle="white">
+	<PageHeader eyebrow={labels.eyebrow} title={service.title} intro={summary} image={image || fallbackImage}>
+		{
+			labels.button_label && (
+				<Button href="#contact" variant="secondary" arrow="right">
+					{labels.button_label}
+				</Button>
+			)
+		}
+		{
+			labels.back_label && (
+				<a
+					href="/services"
+					class="font-heading-2 text-base-50 decoration-base-50/50 hover:decoration-base-50 font-medium underline decoration-1 underline-offset-[6px] transition"
+				>
+					{labels.back_label}
+				</a>
+			)
+		}
+	</PageHeader>
+
+	<section class="section">
+		<div
+			class:list={[
+				"site-container grid gap-12",
+				{ "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-20": body },
+			]}
+		>
+			<div data-reveal>
+				{labels.included_label && <p class="eyebrow">{labels.included_label}</p>}
+				<ul class:list={["mt-6 grid gap-x-10 gap-y-5", { "md:grid-cols-2": !body }]}>
+					{
+						features.map((feature) => (
+							<li class="border-base-200 flex gap-3 border-t pt-5 text-lg leading-snug">
+								<Icon name="tabler:check" class="text-primary-600 mt-0.5 size-5 shrink-0" aria-hidden="true" />
+								<span>{feature}</span>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+			{body && <div class="markdown-content min-w-0" data-reveal set:html={body} />}
+		</div>
+	</section>
+
+	<TestimonialQuote />
+
+	<section class="section">
+		<div class="site-container">
+			<div data-reveal>
+				{labels.more_eyebrow && <p class="eyebrow">{labels.more_eyebrow}</p>}
+				{labels.more_heading && <h2 class="h2 mt-3">{labels.more_heading}</h2>}
+			</div>
+			<div class="mt-10">
+				<ServiceCards exclude={service.slug} />
+			</div>
+		</div>
+	</section>
+
+	<Contact selected={service.slug} source={`service: ${service.title}`} />
+</BaseLayout>

@@ -1,39 +1,95 @@
 ---
-import Seo from "@components/Seo/Seo.astro";
-import siteData from "@config/siteData.json";
-import { type CollectionEntry } from "astro:content";
-import { ClientRouter } from "astro:transitions";
-
-export interface Props {
-	type?: "general" | undefined;
-	title: string;
-	description: string;
-	image?: ImageMetadata;
-	noindex?: boolean;
-}
-
-const { type = "general", title, description, image, noindex = false } = Astro.props as Props;
-
-import CinzelDecorative from "@fontsource/cinzel-decorative/files/cinzel-decorative-latin-400-normal.woff2";
+/**
+ * * <head>: fonts, favicons, the page's SEO from the CMS (@librepublish/astro's <Seo>: title,
+ * description, canonical, Open Graph, Twitter, JSON-LD), the business's structured data on the
+ * home page, and the CMS "scripts" global (analytics and the like).
+ */
 import PlayfairDisplayVariable from "@fontsource-variable/playfair-display/files/playfair-display-latin-wght-normal.woff2";
 import RalewayVariable from "@fontsource-variable/raleway/files/raleway-latin-wght-normal.woff2";
 import WorkSansVariable from "@fontsource-variable/work-sans/files/work-sans-latin-wght-normal.woff2";
+import type { CmsEntry, CmsPage } from "@librepublish/astro/client";
+import Seo from "@librepublish/astro/components/Seo.astro";
+import { getEntry } from "astro:content";
+import { ClientRouter } from "astro:transitions";
+
+import { getSiteSettings, seoAssets } from "@/lib/cms";
+import { getSite } from "@/lib/site";
+
+export interface Props {
+	record: CmsPage | CmsEntry;
+}
+
+const { record } = Astro.props as Props;
+const [site, settings, assets, scriptsGlobal] = await Promise.all([
+	getSite(),
+	getSiteSettings(),
+	seoAssets(),
+	getEntry("globals", "scripts"),
+]);
+
+// Pages are built as files (about.html) and served without the extension, so the canonical is
+// the clean path, as the CMS and the sitemap give it. A record without a sharing image of its own
+// uses Site settings › Default sharing image.
+const cleanPath = Astro.url.pathname.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "") || "/";
+const seo = {
+	...record.seo,
+	canonical_url: record.seo?.canonical_url || new URL(cleanPath, Astro.site).href,
+	og_image_id: record.seo?.og_image_id || settings.share_image || undefined,
+};
+const isHome = "path" in record && record.path === "home";
+const seoRecord = { ...record, seo } as CmsPage | CmsEntry;
+
+// The home page says what the business is, from Settings › General.
+const contact = site.contact ?? {};
+const address =
+	contact.address_line1 && contact.city
+		? {
+				"@type": "PostalAddress",
+				streetAddress: contact.address_line1,
+				addressLocality: contact.city,
+				addressRegion: contact.state,
+				postalCode: contact.zip,
+				addressCountry: "US",
+			}
+		: undefined;
+const shareImage = seo.og_image_id ? assets[String(seo.og_image_id)]?.original : undefined;
+const businessJsonLd =
+	isHome && !record.seo?.json_ld
+		? {
+				"@context": "https://schema.org",
+				"@type": String(record.seo?.schema_type || "LocalBusiness"),
+				name: site.name,
+				description: site.description || record.seo?.meta_description,
+				url: Astro.site?.href,
+				email: contact.email || undefined,
+				telephone: contact.phone || undefined,
+				address,
+				image: shareImage,
+				founder: { "@type": "Person", name: "Sarah Martin" },
+			}
+		: undefined;
+
+// Scripts editors paste into the CMS "scripts" global (analytics, pixels).
+const scriptItems = ((scriptsGlobal?.data as any)?.data?.items ?? []) as { head?: string; body?: string; enabled?: boolean }[];
+const headScripts = scriptItems.filter((s) => s.enabled !== false).map((s) => s.head).filter(Boolean).join("\n");
 ---
 
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width" initial-scale="1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <!-- local font preload for better performance when not using ClientRouter -->
 <link rel="preload" href={WorkSansVariable} as="font" type="font/woff2" crossorigin="anonymous" />
 <link rel="preload" href={RalewayVariable} as="font" type="font/woff2" crossorigin="anonymous" />
-<link
-	rel="preload"
-	href={PlayfairDisplayVariable}
-	as="font"
-	type="font/woff2"
-	crossorigin="anonymous"
-/>
-<link rel="preload" href={CinzelDecorative} as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href={PlayfairDisplayVariable} as="font" type="font/woff2" crossorigin="anonymous" />
+
+<!-- Hold the hero copy for the entrance animation. Skipped when the visitor prefers reduced motion,
+and released after 2.5s regardless so the page can never stay blank if the motion script fails. -->
+<script is:inline>
+	if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+		document.documentElement.classList.add("motion-pending");
+		setTimeout(() => document.documentElement.classList.remove("motion-pending"), 2500);
+	}
+</script>
 
 <!-- Favicons. Generated from https://realfavicongenerator.net/ -->
 <link rel="icon" type="image/png" href="/favicons/favicon-96x96.png" sizes="96x96" />
@@ -42,11 +98,11 @@ import WorkSansVariable from "@fontsource-variable/work-sans/files/work-sans-lat
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
 <link rel="manifest" href="/favicons/site.webmanifest" />
 
-<!-- other -->
 <meta name="generator" content={Astro.generator} />
-<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="sitemap" href="/sitemap.xml" />
 
-<Seo type={type} title={title} description={description} image={image} noindex={noindex} />
+<Seo record={seoRecord} assets={assets} siteName={site.name} titleTemplate={(title) => title} />
+{businessJsonLd && <script type="application/ld+json" set:html={JSON.stringify(businessJsonLd)} />}
+{headScripts && <Fragment set:html={headScripts} />}
 
-<!-- no fallback as I saw issues with firefox fallback -->
-{siteData.useViewTransitions && <ClientRouter fallback="none" />}
+<ClientRouter fallback="none" />

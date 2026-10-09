@@ -1,0 +1,30 @@
+---
+/**
+ * * A heading with a row of short reasons (CMS block "reasons").
+ */
+
+import type { ReasonsBlock } from "librepublish:types";
+
+type Props = ReasonsBlock;
+
+const { eyebrow, heading, items = [] } = Astro.props;
+---
+
+<section class="section">
+	<div class="site-container">
+		<div data-reveal>
+			{eyebrow && <p class="eyebrow">{eyebrow}</p>}
+			<h2 class="h2 mt-3 max-w-[22ch]">{heading}</h2>
+		</div>
+		<div class="mt-12 grid gap-10 md:grid-cols-3" data-reveal-group>
+			{
+				items.map((reason) => (
+					<div class="border-base-300 border-t pt-6">
+						<h3 class="font-heading-1 text-primary-800 text-2xl leading-tight">{reason.title}</h3>
+						{reason.text && <p class="description mt-3">{reason.text}</p>}
+					</div>
+				))
+			}
+		</div>
+	</div>
+</section>

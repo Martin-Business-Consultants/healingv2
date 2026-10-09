@@ -1,63 +1,65 @@
 ---
 /**
- * * These are small cards that are used in the portfolio section
+ * * Case study card: photo, location tag, title, summary, and a link to the full study
  */
-import Button from "@components/Button/Button.astro";
-import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
+import CmsImage from "@components/CmsImage/CmsImage.astro";
+import { Icon } from "astro-icon/components";
+
+import { type CaseStudy, getSiteSettings, recordHref } from "@/lib/cms";
 
 interface Props {
-	portfolio: CollectionEntry<"portfolios">;
+	portfolio: CaseStudy;
 	direction: "horizontal" | "vertical";
+	featured?: boolean;
 	noTransitions?: boolean;
 }
 
-const { portfolio, direction, noTransitions = false } = Astro.props as Props;
-const { title, description, heroImage } = portfolio.data;
+const { portfolio, direction, featured = false, noTransitions = false } = Astro.props as Props;
+const { description, hero_image, location } = portfolio.frontmatter;
+const linkLabel = (await getSiteSettings()).case_study_page?.card_link_label || "Read the case study";
+const imgClass = "h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]";
+const sizes = featured ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 768px) 33vw, 100vw";
 ---
 
-<div
+<a
+	href={recordHref(portfolio)}
 	class:list={[
-		"grid gap-4",
-		{
-			"md:grid-cols-2": direction === "horizontal",
-		},
+		"group grid content-start gap-5",
+		{ "sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:items-center sm:gap-7": direction === "horizontal" },
 	]}
 >
-	<a href={`/portfolio/${portfolio.id}`} class="aspect-square overflow-hidden">
+	<div
+		class:list={[
+			"bg-base-200 overflow-hidden rounded-xl",
+			featured ? "aspect-[4/5] lg:aspect-[5/6]" : "aspect-[4/3]",
+		]}
+	>
 		{
-			noTransitions && (
-				<Image
-					src={heroImage}
-					alt={title}
-					width={450}
-					densities={[1.5, 2, 3]}
-					class="h-auto min-h-full w-full min-w-full object-cover"
-				/>
+			noTransitions ? (
+				<CmsImage id={hero_image} alt="" sizes={sizes} class={imgClass} />
+			) : (
+				<CmsImage id={hero_image} alt="" sizes={sizes} class={imgClass} transition:name={`portfolio-image-${portfolio.slug}`} />
 			)
 		}
-		{
-			!noTransitions && (
-				<Image
-					src={heroImage}
-					alt={title}
-					width={450}
-					densities={[1.5, 2, 3]}
-					class="h-auto min-h-full w-full min-w-full object-cover"
-					transition:name={`portfolio-image-${portfolio.id}`}
-				/>
-			)
-		}
-	</a>
-	<div class="flex flex-col justify-between gap-2">
-		<div>
-			<h3 class="h3 text-primary-500 tracking-widest">{title}</h3>
-			<p class="mt-4 lg:text-lg">{description}</p>
-		</div>
-		<div class="flex">
-			<Button variant="ghost" arrow="right" href={`/portfolio/${portfolio.id}`} class="pl-0">
-				View More
-			</Button>
-		</div>
 	</div>
-</div>
+	<div class="min-w-0">
+		{location && <p class="eyebrow">{location}</p>}
+		<h3
+			class:list={[
+				"font-heading-1 text-base-900 mt-2 leading-tight font-medium",
+				featured ? "text-3xl md:text-4xl" : "text-2xl",
+			]}
+		>
+			{portfolio.title}
+		</h3>
+		<p class="description mt-3 text-pretty">{description}</p>
+		<span class="font-heading-2 text-primary-800 mt-4 inline-flex items-center gap-2 font-semibold">
+			{linkLabel}
+			<Icon
+				name="mynaui/arrow-long-right"
+				class="size-5 transition-transform duration-200 group-hover:translate-x-1"
+				aria-hidden="true"
+			/>
+		</span>
+	</div>
+</a>

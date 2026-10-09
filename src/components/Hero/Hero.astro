@@ -1,77 +1,110 @@
 ---
 /**
- * * Hero with background image
- * You'll want a mobile image, and a desktop image for this.
+ * * Home hero (CMS block "home_hero"): background photo, headline, client quote, and the booking form.
+ * The form card carries id="contact", so every "Book" link and service preselect lands here.
  */
 
-import Button from "@components/Button/Button.astro";
-import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
+import CmsImage from "@components/CmsImage/CmsImage.astro";
+import ContactForm from "@components/Forms/ContactForm.astro";
+import type { HomeHeroBlock } from "librepublish:types";
 
-interface Props {
-	heading?: string;
-	subtitle?: string;
-	ctaText?: string;
-	image?: ImageMetadata;
-}
+import { getSiteSettings, href } from "@/lib/cms";
 
-const {
-	heading = "Healing Earth Design",
-	subtitle = "Beautiful, functional gardens rooted in ecology, sustainability, and care for the land.",
-	ctaText = "Get in Touch",
-	image,
-} = Astro.props;
+type Props = HomeHeroBlock;
 
-// fallback if no image prop provided
-const heroImage = image ?? (await import("@assets/images/IMG_7280.webp")).default;
+const { eyebrow, heading, subtitle, image, button_label, secondary_label, secondary_link, form_eyebrow, form_intro, show_quote } =
+	Astro.props;
+
+const quote = show_quote ? (await getSiteSettings()).quote : null;
+const secondaryHref = href(secondary_link);
 ---
 
-<section id="hero" class="relative z-10 flex min-h-[100lvh] w-full">
-	<!-- background image -->
-	<div class="absolute -z-10 h-full min-h-full w-full overflow-hidden">
-		<div class="absolute inset-0 bg-black/30"></div>
-
-		<Image
-			src={heroImage}
-			class="hidden h-auto min-h-full w-full object-cover object-bottom sm:block"
-			alt="garden landscape"
-			aria-hidden="true"
+<section id="hero" data-cta-hide class="relative isolate w-full overflow-hidden">
+	<!-- background photo, flush to the top so it shows through the transparent nav -->
+	<div class="absolute inset-0 -z-10" data-hero-media>
+		<CmsImage
+			id={image}
+			alt=""
+			class="h-full w-full object-cover object-[50%_70%]"
 			loading="eager"
-			height={1400}
-		/>
-		<Image
-			src={heroImage}
-			class="h-auto min-h-full w-full object-cover sm:hidden"
-			alt="garden landscape"
-			aria-hidden="true"
-			loading="eager"
-			width={1200}
+			fetchpriority="high"
+			sizes="100vw"
 		/>
 	</div>
+	<!-- light top scrim keeps the white nav legible against bright sky -->
+	<div class="from-primary-950/45 absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b to-transparent"></div>
+	<!-- main scrim: darkest bottom-left where the copy sits -->
+	<div
+		class="from-primary-950/85 via-primary-950/50 to-primary-950/10 absolute inset-0 -z-10 bg-gradient-to-tr"
+	>
+	</div>
 
-	<!-- hero items -->
-	<div class="site-container relative w-full gap-10 py-44 text-center md:py-52 md:text-left">
-		<!-- Hero text -->
-		<div class="text-base-50 my-auto mr-auto max-w-[800px] flex-col">
+	<div
+		class="site-container grid w-full gap-12 pt-44 pb-14 md:pt-48 md:pb-20 lg:grid-cols-[minmax(0,1fr)_27rem] lg:items-center lg:gap-16"
+	>
+		<div class="text-base-50 max-w-[40rem] min-w-0">
+			{
+				eyebrow && (
+					<p
+						data-hero-item
+						class="font-heading-2 text-primary-100 text-xs font-semibold tracking-[0.18em] uppercase md:text-sm"
+					>
+						{eyebrow}
+					</p>
+				)
+			}
 			<h1
-				class="font-heading-1 text-4xl font-semibold text-pretty drop-shadow-[0_2px_2px_rgba(0,0,0,0.4)] md:text-7xl md:leading-tight"
+				data-hero-item
+				class="font-heading-1 mt-4 text-[2.6rem] leading-[1.04] font-medium tracking-tight md:text-[4.25rem]"
 			>
 				{heading}
 			</h1>
-			<p
-				class="mt-8 text-lg tracking-widest text-pretty drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)] md:max-w-[550px] md:text-2xl"
-			>
-				{subtitle}
-			</p>
-			<div class="mt-10 flex flex-wrap justify-center gap-4 md:justify-start">
-				<Button
-					variant="ghost"
-					arrow="right"
-					href="/#contact"
-					class="pl-0 text-xl text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)] md:text-3xl"
-				>
-					{ctaText}
-				</Button>
+			{
+				subtitle && (
+					<p data-hero-item class="text-base-100 mt-6 max-w-[34rem] text-lg md:text-xl">
+						{subtitle}
+					</p>
+				)
+			}
+			<div data-hero-item class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+				<!-- on small screens the form sits below the fold, so give the main action a button that jumps to it -->
+				{button_label && <a href="#contact" class="button button--secondary lg:hidden">{button_label}</a>}
+				{
+					secondary_label && secondaryHref && (
+						<a
+							href={secondaryHref}
+							class="font-heading-2 text-base-50 decoration-base-50/50 hover:decoration-base-50 font-medium underline decoration-1 underline-offset-[6px] transition"
+						>
+							{secondary_label}
+						</a>
+					)
+				}
+			</div>
+
+			{
+				quote?.text && (
+					<figure data-hero-item class="border-base-50/30 mt-10 max-w-[30rem] border-l-2 pl-5">
+						<blockquote class="font-heading-1 text-base-50 text-lg leading-snug italic">“{quote.text.trim()}”</blockquote>
+						{quote.attribution && (
+							<figcaption class="font-heading-2 text-primary-100 mt-3 text-sm font-semibold">
+								{[quote.attribution, quote.context].filter(Boolean).join(", ")}
+							</figcaption>
+						)}
+					</figure>
+				)
+			}
+		</div>
+
+		<div
+			id="contact"
+			data-hero-item
+			class="bg-base-50 text-base-900 scroll-mt-24 rounded-2xl p-6 shadow-[0_30px_70px_-30px_rgb(0_0_0/0.6)] md:p-8"
+		>
+			{form_eyebrow && <p class="eyebrow">{form_eyebrow}</p>}
+			{button_label && <h2 class="font-heading-1 mt-2 text-2xl leading-tight font-medium md:text-3xl">{button_label}</h2>}
+			{form_intro && <p class="description mt-2 text-sm">{form_intro}</p>}
+			<div class="mt-6">
+				<ContactForm compact source="home" />
 			</div>
 		</div>
 	</div>

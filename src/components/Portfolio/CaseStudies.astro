@@ -1,0 +1,59 @@
+---
+/**
+ * * Case studies (CMS block "case_studies"), from the Case studies collection in its order.
+ * Featured: one large on the left and two stacked on the right, under a heading. Grid: every one.
+ */
+
+import Button from "@components/Button/Button.astro";
+import PortfolioCard from "@components/PortfolioCard/PortfolioCard.astro";
+import type { CaseStudiesBlock } from "librepublish:types";
+
+import { href, listCaseStudies } from "@/lib/cms";
+
+import PortfolioGrid from "./PortfolioGrid.astro";
+
+type Props = CaseStudiesBlock;
+
+const { layout = "featured", eyebrow, heading, button_label, button_link } = Astro.props;
+const portfolios = await listCaseStudies();
+const [featured, ...rest] = portfolios.slice(0, 3);
+const buttonHref = href(button_link);
+---
+
+{
+	layout === "grid" ? (
+		<div class="site-container">
+			{heading && <h2 class="h2 mt-16 text-center">{heading}</h2>}
+			<PortfolioGrid portfolios={portfolios} />
+		</div>
+	) : (
+		<section id="portfolio" class="section bg-base-100">
+			<div class="site-container">
+				<div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+					<div>
+						{eyebrow && <p class="eyebrow">{eyebrow}</p>}
+						{heading && <h2 class="h2 mt-3 max-w-[20ch]">{heading}</h2>}
+					</div>
+					{button_label && buttonHref && (
+						<Button href={buttonHref} variant="outline" arrow="right">
+							{button_label}
+						</Button>
+					)}
+				</div>
+
+				<div class="mt-12 grid gap-12 md:mt-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
+					{featured && (
+						<div data-reveal>
+							<PortfolioCard portfolio={featured} direction="vertical" featured />
+						</div>
+					)}
+					<div class="grid content-center gap-12" data-reveal-group>
+						{rest.map((portfolio) => (
+							<PortfolioCard portfolio={portfolio} direction="horizontal" />
+						))}
+					</div>
+				</div>
+			</div>
+		</section>
+	)
+}

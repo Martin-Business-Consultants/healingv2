@@ -1,65 +1,39 @@
 ---
 /**
- * * This is a "What I Do" services overview section.
+ * * "What I Do" (CMS block "what_i_do"): a mission statement with a row of large-type themes.
  */
 
-interface FeatureCardData {
-	largeText: string;
-	description: string;
-}
+import type { WhatIDoBlock } from "librepublish:types";
 
-interface Props {
-	heading?: string;
-	tagline?: string;
-	missionStatement?: string;
-	items?: FeatureCardData[];
-}
+type Props = WhatIDoBlock;
 
-const {
-	heading = "What I Do",
-	tagline = "All services are plant-forward and tailored to your space, lifestyle, and experience level.",
-	missionStatement = "My mission is to help bridge the gap between wild spaces and our cities by transforming everyday yards into living ecosystems—places that nurture plants, people, and wildlife alike.",
-	items = [
-		{ largeText: "Consult", description: "Garden consultations and seasonal guidance" },
-		{ largeText: "Design", description: "Custom planting plans and landscape design drawings" },
-		{ largeText: "Grow", description: "Native, pollinator, vegetable, cut flower, and medicinal herb gardens" },
-		{ largeText: "Support", description: "Plant shopping and installation support" },
-	],
-} = Astro.props;
+const { eyebrow, statement, tagline, items = [] } = Astro.props;
 ---
 
-<section id="feature-numbers" class="bg-base-100 scroll-mt-10 py-8 md:py-12">
-	<div class="mx-auto max-w-6xl px-4">
-		<div class="text-prety mr-auto text-center">
-			<h2 class="h2">{heading}</h2>
+<section id="feature-numbers" class="section">
+	<div class="site-container">
+		<div class="grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-16">
+			<p class="eyebrow pt-3" data-reveal>{eyebrow}</p>
+			<div data-reveal>
+				<h2 class="h2 max-w-[22ch] md:max-w-[26ch]">{statement}</h2>
+				{tagline && <p class="description mt-6 max-w-[40rem] text-lg">{tagline}</p>}
+			</div>
 		</div>
 
-		<div
-			id="feature-numbers-cards"
-			class="mt-6 grid gap-10 gap-y-16 sm:grid-cols-2 md:mt-12 lg:grid-cols-4"
-		>
-			{
-				items.map((feature) => (
-					<div class="flex flex-col gap-3 text-center">
-						<h3 class="font-decorative text-primary-500 text-4xl leading-none md:text-5xl">
-							{feature.largeText}
-						</h3>
-						<p class="description font-heading-1 pr-2 text-lg">
-							{feature.description}
-						</p>
+		{
+			items?.length ? (
+				<Fragment>
+					<div class="bg-base-300 mt-14 h-px md:mt-20" data-grow-x />
+					<div id="feature-numbers-cards" class="grid gap-x-10 gap-y-10 pt-10 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
+						{items.map((feature) => (
+							<div class="flex flex-col gap-3">
+								<h3 class="font-heading-1 text-primary-700 text-4xl leading-none italic md:text-5xl">{feature.large_text}</h3>
+								{feature.description && <p class="description max-w-[22rem] text-base md:text-lg">{feature.description}</p>}
+							</div>
+						))}
 					</div>
-				))
-			}
-		</div>
-
-		<p class="description mt-10 text-center text-lg italic">
-			{tagline}
-		</p>
-
-		<div class="mt-8 text-center">
-			<p class="description text-base md:text-lg">
-				{missionStatement}
-			</p>
-		</div>
+				</Fragment>
+			) : null
+		}
 	</div>
 </section>

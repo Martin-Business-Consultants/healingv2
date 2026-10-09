@@ -1,66 +1,77 @@
 ---
+/**
+ * * Footer: link groups either side of the logo, a note, social profiles and the copyright line,
+ * from the CMS's "footer" global and Site settings.
+ */
 import SiteLogo from "@components/SiteLogo/SiteLogo.astro";
-import siteData from "@config/siteData.json";
 import { Icon } from "astro-icon/components";
+
+import { getFooter, getSiteSettings, href } from "@/lib/cms";
 
 import FooterLink from "./FooterLink.astro";
 
-const today = new Date();
+const [footer, settings] = await Promise.all([getFooter(), getSiteSettings()]);
+const groups = (footer.columns ?? []).map((column) =>
+	(column.items ?? []).map((item) => ({ label: item.label, href: href(item.link) ?? "/" })),
+);
+const [left = [], right = [], ...more] = groups;
+const extra = more.flat();
+const copyright = (footer.copyright ?? "").replaceAll("{year}", String(new Date().getFullYear()));
+const networkNames: Record<string, string> = {
+	facebook: "Facebook",
+	instagram: "Instagram",
+	youtube: "YouTube",
+	pinterest: "Pinterest",
+	tiktok: "TikTok",
+	x: "X",
+	linkedin: "LinkedIn",
+};
+const socials = settings.socials ?? [];
 ---
 
 <footer class="bg-base-100/40 mt-12 flex flex-col items-center justify-center py-8">
 	<div class="site-container">
 		<!-- footer links -->
-		<div
-			class="flex w-full flex-col items-center justify-between gap-2 text-lg md:grid md:grid-cols-5"
-		>
+		<div class="flex w-full flex-col items-center justify-between gap-2 text-lg md:grid md:grid-cols-5">
 			<div class="flex justify-center py-2 text-center md:hidden">
 				<SiteLogo />
 			</div>
 			<div class="col-span-2 flex justify-end gap-4">
-				<FooterLink href="/">Home</FooterLink>
-				<FooterLink href="/#portfolio">Case Studies</FooterLink>
+				{left.map((link) => <FooterLink href={link.href}>{link.label}</FooterLink>)}
 			</div>
 			<div class="hidden justify-center text-center md:flex">
 				<SiteLogo />
 			</div>
 			<div class="flex gap-4 md:col-span-2">
-				<FooterLink href="/#pricing">Services</FooterLink>
-				<FooterLink href="/#contact">Contact</FooterLink>
+				{right.map((link) => <FooterLink href={link.href}>{link.label}</FooterLink>)}
 			</div>
 		</div>
 
-		<!-- lets connect -->
-		<div class="description mx-auto mt-6 max-w-[21rem] px-4 text-center">
-			<p>
-				<span class="italic">Let's connect!</span> Follow along for garden inspiration, sustainable
-				design tips, and project updates.
-			</p>
-		</div>
+		{
+			settings.footer_blurb && (
+				<div class="description mx-auto mt-6 max-w-[21rem] px-4 text-center">
+					<p>{settings.footer_blurb}</p>
+				</div>
+			)
+		}
 
-		<!-- socials -->
-		<div class="text-primary-500 mt-8 flex justify-center gap-4">
-			<a href="https://x.com/BowTiedWebReapr" target="_blank" rel="noopener noreferrer">
-				<Icon name="socials/mdi-facebook" class="size-6 transition hover:opacity-80" />
-				<span class="sr-only">Facebook</span>
-			</a>
-			<a href="https://x.com/BowTiedWebReapr" target="_blank" rel="noopener noreferrer">
-				<Icon name="socials/mdi-twitter" class="size-6 transition hover:opacity-80" />
-				<span class="sr-only">Twitter</span>
-			</a>
-			<a href="https://x.com/BowTiedWebReapr" target="_blank" rel="noopener noreferrer">
-				<Icon name="socials/mdi-youtube" class="size-6 transition hover:opacity-80" />
-				<span class="sr-only">Youtube</span>
-			</a>
-			<a href="https://x.com/BowTiedWebReapr" target="_blank" rel="noopener noreferrer">
-				<Icon name="socials/basil-instagram-solid" class="size-6 transition hover:opacity-80" />
-				<span class="sr-only">Instagram</span>
-			</a>
-		</div>
+		{
+			socials.length > 0 && (
+				<div class="text-primary-500 mt-8 flex justify-center gap-4">
+					{socials.map((social) => (
+						<a href={social.url} target="_blank" rel="noopener noreferrer">
+							<Icon name={`tabler:brand-${social.network}`} class="size-6 transition hover:opacity-80" />
+							<span class="sr-only">{networkNames[social.network] ?? social.network}</span>
+						</a>
+					))}
+				</div>
+			)
+		}
 
 		<!-- copyright -->
-		<div class="mt-4 mb-2 text-center text-sm opacity-80">
-			&copy; {today.getFullYear()} {siteData.name}. All rights reserved.
+		<div class="mt-4 mb-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-center text-sm opacity-80">
+			{copyright && <span>{copyright}</span>}
+			{extra.map((link) => <a href={link.href} class="underline-offset-4 hover:underline">{link.label}</a>)}
 		</div>
 	</div>
 </footer>

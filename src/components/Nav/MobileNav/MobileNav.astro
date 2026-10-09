@@ -1,9 +1,15 @@
 ---
 import Button from "@components/Button/Button.astro";
-import MobileNavDropdown from "@components/Nav/MobileNav/MobileNavDropdown.astro";
-import NavLink from "@components/Nav/NavLink.astro";
-import navData from "@config/navData.json";
+import NavLink, { type NavItem } from "@components/Nav/NavLink.astro";
 import { Icon } from "astro-icon/components";
+
+interface Props {
+	navItems: NavItem[];
+	bookingLabel: string;
+	bookingHref: string;
+}
+
+const { navItems, bookingLabel, bookingHref } = Astro.props;
 ---
 
 <div id="mobile-nav__container">
@@ -37,24 +43,11 @@ import { Icon } from "astro-icon/components";
 			<hr class="border-base-200 mx-1" />
 			<nav>
 				<ul class="mx-1 mt-2 text-xl">
-					{
-						// if dropdown exists, setup the dropdown, otherwise it is just a link
-						navData.map((navItem) =>
-							"dropdown" in navItem ? (
-								// non-mobile dropdown menu
-								<MobileNavDropdown navItem={navItem} />
-							) : (
-								// normal nav link
-								<NavLink {navItem} />
-							),
-						)
-					}
+					{navItems.map((navItem) => <NavLink navItem={navItem} />)}
 				</ul>
 			</nav>
 			<div class="mx-1 mt-2 w-full px-4">
-				<Button variant="outline" class="w-full" href="https://cosmicthemes.com/themes/horizon/">
-					Get Horizon
-				</Button>
+				<Button variant="primary" class="w-full" href={bookingHref}>{bookingLabel}</Button>
 			</div>
 		</div>
 	</div>

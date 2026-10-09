@@ -1,10 +1,11 @@
 ---
+import AnnouncementBar from "@components/AnnouncementBar/AnnouncementBar.astro";
 import Button from "@components/Button/Button.astro";
 import MobileNav from "@components/Nav/MobileNav/MobileNav.astro";
-import NavDropdown from "@components/Nav/NavDropdown/NavDropdown.astro";
-import NavLink from "@components/Nav/NavLink.astro";
+import NavLink, { type NavItem } from "@components/Nav/NavLink.astro";
 import SiteLogo from "@components/SiteLogo/SiteLogo.astro";
-import navData from "@config/navData.json";
+
+import { getNav, getSiteSettings, href } from "@/lib/cms";
 
 interface Props {
 	startStyle?: "default" | "white"; // if set to "white", the nav elements will be white until the page is scrolled down. Useful for background hero images.
@@ -12,15 +13,19 @@ interface Props {
 }
 
 const { startStyle = "default", rest } = Astro.props as Props;
+const [nav, settings] = await Promise.all([getNav(), getSiteSettings()]);
+const navItems: NavItem[] = (nav.items ?? []).map((item) => ({ text: item.label, link: href(item.link) ?? "/" }));
+const bookingHref = href(settings.booking_link) ?? "/#contact";
 ---
 
 <div
 	id="nav__container"
-	class="initial fixed top-0 left-0 z-30 flex w-full flex-col py-2 transition-[padding,background-color] duration-300"
+	class="initial fixed top-0 left-0 z-30 flex w-full flex-col transition-[background-color] duration-300"
 	transition:name={`nav`}
 	{...rest}
 >
-	<div class="mx-auto flex w-full" class:list={[{ "text-base-900": startStyle === "default" }]}>
+	<AnnouncementBar />
+	<div class="nav__bar mx-auto flex w-full py-2 transition-[padding] duration-300" class:list={[{ "text-base-900": startStyle === "default" }]}>
 		<div class="site-container flex h-16 w-full items-center">
 			<header class="flex w-full items-center gap-2">
 				<!-- home button / image -->
@@ -32,32 +37,20 @@ const { startStyle = "default", rest } = Astro.props as Props;
 				<div class="flex flex-auto justify-end lg:gap-4">
 					<nav class="hidden md:block">
 						<ul class="flex h-full items-center justify-center px-4 text-lg lg:gap-4">
-							{
-								// if dropdown exists, setup the dropdown, otherwise it is just a link
-								navData.map((navItem) =>
-									"dropdown" in navItem ? (
-										// non-mobile dropdown menu
-										<NavDropdown navItem={navItem} class="text-base-900" />
-									) : (
-										// normal nav link
-										<NavLink {navItem} class="h-10" />
-									),
-								)
-							}
+							{navItems.map((navItem) => <NavLink navItem={navItem} class="h-10" />)}
 						</ul>
 					</nav>
 					<Button
-						variant="secondary"
-						class=`nav__cta py-1 my-auto hidden md:block ${startStyle === "white" ? "data-[scrolled=true]:border-primary-200 data-[scrolled=true]:hover:border-primary-200/80" : "border-primary-200"}`
-						href="/#contact"
-						data-scrolled="false"
+						variant="primary"
+						class="nav__cta my-auto hidden px-5 py-2.5 text-sm md:inline-flex"
+						href={bookingHref}
 					>
-						Contact
+						{settings.booking_label}
 					</Button>
 
 					<!-- mobile nav menu, only load on small screens where it is visible -->
 					<div class="md:hidden">
-						<MobileNav />
+						<MobileNav navItems={navItems} bookingLabel={settings.booking_label} bookingHref={bookingHref} />
 					</div>
 				</div>
 			</header>
@@ -67,7 +60,6 @@ const { startStyle = "default", rest } = Astro.props as Props;
 
 <script>
 	let navbar: HTMLElement | null;
-	let navCTA: HTMLElement | null;
 
 	function scrollHandler() {
 		if (navbar) {
@@ -75,18 +67,15 @@ const { startStyle = "default", rest } = Astro.props as Props;
 				// if we have scrolled down the page a bit, adjust colors
 				navbar.classList.add("scrolled");
 				navbar.classList.remove("initial");
-				navCTA?.setAttribute("data-scrolled", "true");
 			} else {
 				navbar.classList.add("initial");
 				navbar.classList.remove("scrolled");
-				navCTA?.setAttribute("data-scrolled", "false");
 			}
 		}
 	}
 
 	function initNav() {
 		navbar = document.getElementById("nav__container");
-		navCTA = navbar?.querySelector(".nav__cta") as HTMLElement;
 		window.addEventListener("scroll", scrollHandler, { passive: true });
 	}
 
@@ -105,7 +94,22 @@ const { startStyle = "default", rest } = Astro.props as Props;
 
 	#nav__container.scrolled {
 		/* @apply bg-base-50 py-0; */
-		background-color: var(--color-base-50);
+		background-color: color-mix(in oklch, var(--color-base-50) 92%, transparent);
+		backdrop-filter: blur(10px);
+		box-shadow: 0 1px 0 var(--color-base-200);
+	}
+
+	#nav__container.scrolled .nav__bar {
 		padding-block: 0;
+	}
+
+	/* banner folds away once scrolled; grid row 1fr -> 0fr animates the height */
+	#nav__container :global(.announcement) {
+		grid-template-rows: 1fr;
+		transition: grid-template-rows 300ms ease;
+	}
+
+	#nav__container.scrolled :global(.announcement) {
+		grid-template-rows: 0fr;
 	}
 </style>

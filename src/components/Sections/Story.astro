@@ -1,0 +1,40 @@
+---
+/**
+ * * Story sections (CMS block "story"): heading, text and a photo, alternating sides.
+ */
+
+import CmsImage from "@components/CmsImage/CmsImage.astro";
+import type { StoryBlock } from "librepublish:types";
+
+import { richText } from "@/lib/cms";
+
+type Props = StoryBlock;
+
+const { sections = [] } = Astro.props;
+---
+
+<section class="mx-auto max-w-6xl px-4">
+	{
+		sections.map((section, index) => (
+			<div
+				class:list={[
+					"flex flex-col items-center gap-10",
+					index === 0 ? "mt-12 md:mt-20" : "mt-16 md:mt-24",
+					index === sections.length - 1 && "pb-16 md:pb-24",
+					index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse",
+				]}
+				data-reveal
+			>
+				<div class="md:w-1/2">
+					<h2 class="h2">{section.heading}</h2>
+					<div class="description prose-cms mt-4 text-base md:text-lg" set:html={richText(section.body)} />
+				</div>
+				<div class="w-full md:w-1/2">
+					<div class="aspect-[4/3] overflow-hidden">
+						<CmsImage id={section.image} sizes="(min-width: 768px) 36rem, 100vw" class="h-full w-full object-cover" />
+					</div>
+				</div>
+			</div>
+		))
+	}
+</section>

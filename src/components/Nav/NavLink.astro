@@ -1,29 +1,27 @@
 ---
-import { type navLinkItem } from "@config/navData.json";
+export interface NavItem {
+	text: string;
+	link: string;
+}
 
 interface Props {
-	navItem: navLinkItem;
+	navItem: NavItem;
 	class?: string;
 }
 
 const { navItem, class: className } = Astro.props as Props;
-const { text, link, newTab = false } = navItem;
-
-// if the current page is the same as the link, we can change the styling
+const { text, link } = navItem;
+const external = /^https?:\/\//.test(link);
+const current = Astro.url.pathname.replace(/(\.html|\/)$/, "") === link.replace(/\/$/, "");
 ---
 
 <li>
 	<a
-		class:list={[
-			`nav__link--base flex w-full items-center ${className}`,
-			{
-				// styling for current active page link
-				"": Astro.url.pathname === link,
-			},
-		]}
+		class:list={["nav__link--base flex w-full items-center", className]}
 		href={link}
-		target={newTab ? "_blank" : ""}
-		rel={newTab ? "noopener noreferrer" : ""}
+		aria-current={current ? "page" : undefined}
+		target={external ? "_blank" : undefined}
+		rel={external ? "noopener noreferrer" : undefined}
 	>
 		{text}
 	</a>

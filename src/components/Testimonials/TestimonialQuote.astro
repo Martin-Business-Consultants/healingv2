@@ -1,41 +1,32 @@
 ---
-import { Icon } from "astro-icon/components";
+/**
+ * * A large client quote on a dark band (CMS block "pull_quote"). Left blank, it shows the
+ * featured quote from Site settings.
+ */
+
+import { getSiteSettings, plainText } from "@/lib/cms";
 
 interface Props {
-	quoteText?: string;
-	attribution?: string;
+	text?: string | null;
+	attribution?: string | null;
 }
 
-const {
-	quoteText = "Sarah's garden designs transformed our yard into something truly special",
-	attribution = "- Maria, Homeowner",
-} = Astro.props;
+const { text, attribution } = Astro.props;
+const featured = (await getSiteSettings()).quote;
+const quote = plainText(text) || featured?.text?.trim();
+const name = (plainText(text) ? attribution : featured?.attribution)?.replace(/^[-–—\s]+/, "");
 ---
 
-<div class="bg-base-100 mt-12 py-10 md:mt-16 md:py-16">
-	<div class="mx-auto flex max-w-6xl items-start gap-2 px-4">
-		<div>
-			<Icon
-				name="gridicons/quote"
-				class="text-primary-200 size-8 -translate-y-4 md:size-20"
-				aria-hidden="true"
-			/>
-		</div>
-		<p class="h2 text-primary-600 text-center uppercase">
-			{quoteText}
-		</p>
-		<div>
-			<Icon
-				name="gridicons/quote"
-				class="text-primary-200 size-8 -translate-y-4 -scale-x-100 md:size-20"
-				aria-hidden="true"
-			/>
-		</div>
-	</div>
-
-	<div class="xs:grid-cols-2 mt-6 grid">
-		<div class="col-start-2">
-			<p class="h3 text-primary-600">{attribution}</p>
-		</div>
-	</div>
-</div>
+{
+	quote && (
+		<figure class="bg-primary-900 text-primary-50 py-16 md:py-24">
+			<div class="site-container max-w-[60rem]" data-reveal>
+				<span class="font-heading-1 text-bloom block text-7xl leading-[0.5]" aria-hidden="true">
+					“
+				</span>
+				<blockquote class="font-heading-1 mt-4 text-2xl leading-snug md:text-4xl md:leading-snug">{quote}</blockquote>
+				{name && <figcaption class="font-heading-2 text-primary-200 mt-8 font-semibold">{name}</figcaption>}
+			</div>
+		</figure>
+	)
+}

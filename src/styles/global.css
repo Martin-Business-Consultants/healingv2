@@ -24,10 +24,15 @@
 		@apply border-base-200 outline-none;
 	}
 	*:focus-visible {
-		@apply ring-primary-300 rounded-none ring-2 transition-none outline-none;
+		@apply ring-primary-500 ring-2 transition-none outline-none;
+	}
+	h1,
+	h2,
+	h3 {
+		text-wrap: balance;
 	}
 	html {
-		@apply bg-base-100 text-base-900 leading-[1.6rem] scheme-light;
+		@apply bg-base-50 text-base-900 leading-[1.65] scheme-light;
 		scroll-behavior: smooth;
 		-moz-text-size-adjust: none;
 		-webkit-text-size-adjust: none;
@@ -40,19 +45,28 @@
 
 @layer components {
 	.h1 {
-		@apply font-heading-1 text-4xl font-semibold lg:text-5xl;
+		@apply font-heading-1 text-4xl leading-[1.08] font-medium tracking-tight md:text-6xl;
 	}
 
 	.h2 {
-		@apply font-heading-1 text-2xl leading-tight tracking-wide uppercase md:text-[2.5rem] md:leading-tight;
+		@apply font-heading-1 text-3xl leading-[1.12] font-medium tracking-tight md:text-5xl;
 	}
 
 	.h3 {
-		@apply font-heading-2 text-lg leading-tight font-medium tracking-widest uppercase md:text-2xl md:leading-tight;
+		@apply font-heading-2 text-lg leading-snug font-semibold md:text-xl;
+	}
+
+	/* small tracked label, styled after a nursery plant tag */
+	.eyebrow {
+		@apply font-heading-2 text-primary-600 text-xs font-semibold tracking-[0.18em] uppercase md:text-sm;
 	}
 
 	.description {
-		@apply text-base-700;
+		@apply text-base-600;
+	}
+
+	.section {
+		@apply scroll-mt-20 py-16 md:py-28;
 	}
 
 	.site-container {
@@ -65,14 +79,19 @@
 	}
 
 	.form__input {
-		@apply border-primary-300 text-base-900 placeholder-base-500 w-full rounded-none border bg-transparent px-4 py-2 transition duration-200 outline-none;
-		@apply focus:border-primary-400 focus-visible:border-primary-400 focus:ring-0 focus:outline-none focus-visible:outline-none;
+		@apply border-base-300 text-base-900 placeholder-base-400 bg-base-50 mt-1.5 w-full rounded-lg border px-4 py-3 transition duration-200 outline-none;
+		@apply focus:border-primary-600 focus-visible:border-primary-600 focus:ring-primary-600 focus:ring-1 focus:outline-none focus-visible:outline-none;
 	}
 
 	/* styles navbar links */
 	.nav__link--base {
-		@apply font-heading-1 px-4 py-2 tracking-wide uppercase transition duration-200 hover:opacity-80;
+		@apply font-heading-2 px-3 py-2 text-[0.95rem] font-medium tracking-wide transition duration-200 hover:opacity-70;
 	}
+}
+
+/* Hero entrance: hidden only while the motion script is about to run (see BaseHead). */
+.motion-pending [data-hero-item] {
+	opacity: 0;
 }
 
 @layer utilities {
@@ -84,4 +103,9 @@
 	.rotate-180 {
 		@apply rotate-180;
 	}
+}
+
+/* Rich-text fields from the CMS (HTML paragraphs) */
+.prose-cms > * + * {
+	margin-top: 1em;
 }
